@@ -5,6 +5,6 @@
     "outDir": "./dist",
     "strictNullChecks": true
   },
-  "include": ["src"],
+  "include": ["src", "../../apps/web/components/Call.tsx"],
   "exclude": ["node_modules", "dist"]
 }
