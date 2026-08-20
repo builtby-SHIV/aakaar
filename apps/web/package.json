@@ -11,8 +11,9 @@
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@repo/ui": "*",
     "@repo/lib": "*",
+    "@repo/ui": "*",
+    "agora-rtc-sdk-ng": "^4.24.7",
     "lucide-react": "^1.31.0",
     "next": "16.3.0",
     "react": "^19.2.0",
