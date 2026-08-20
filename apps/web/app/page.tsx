@@ -191,7 +191,7 @@ const features = [
 
 /* ---------- page ---------- */
 
-function Landing() {
+export default function Page() {
   return (
     <div className="min-h-screen bg-background">
       <SiteNav />
@@ -373,7 +373,7 @@ function Landing() {
                 }}
               >
                 <span className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded bg-background/70 px-2 py-1 text-[11px] backdrop-blur">
-                  “…and that's the whole workflow.”
+                  “…and that&apos;s the whole workflow.”
                 </span>
               </div>
               <div className="num relative mt-3 flex items-center justify-center gap-2 text-[11px] text-muted-foreground">

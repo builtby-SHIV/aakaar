@@ -9,9 +9,13 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "postcss": "^8.5.26",
     "prettier": "^3.7.4",
+    "tailwindcss": "^4.3.3",
     "turbo": "^2.10.10",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "web": "workspace:*"
   },
   "engines": {
     "node": ">=18"
@@ -25,5 +29,9 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.6.0"
+  }
 }
