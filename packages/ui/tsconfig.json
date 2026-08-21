@@ -1,10 +1,10 @@
 {
   "extends": "@repo/typescript-config/react-library.json",
   "compilerOptions": {
-    "rootDir": "./src",
+    "rootDir": "src",
     "outDir": "./dist",
     "strictNullChecks": true
   },
-  "include": ["src", "../../apps/web/components/Call.tsx"],
+  "include": ["src", "../../apps/web/components/Call.tsx", "../../apps/web/app/components/MeetingForm.tsx"],
   "exclude": ["node_modules", "dist"]
 }

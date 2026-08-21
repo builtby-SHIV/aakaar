@@ -13,13 +13,14 @@ export default function Page({ roomName }: { roomName: string }) {
     // values = { username, videoEnabled, audioEnabled, videoDeviceId, audioDeviceId }
     mutate(
         { 
-            roomName, 
+            roomName: "roomName", 
             participantName: "shiv" 
         },
         { 
             onSuccess: (data) => {
                 setToken(data.token);
-                router.replace(`/video-meet/${roomName}`)
+                console.log("token" + data.token);
+                router.replace(`/video-meet/roomName`)
             }
         }
     );
@@ -27,7 +28,7 @@ export default function Page({ roomName }: { roomName: string }) {
 
     return (
         <PreJoin
-            defaults={{ username: "" }}
+            defaults={{ }}
             onSubmit={handleSubmit}
             onError={(e) => console.error(e)}
         />

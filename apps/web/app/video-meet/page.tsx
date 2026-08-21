@@ -1,6 +1,6 @@
 "use client";
 
-import MeetingForm, { type meetingForm } from "@repo/ui/MeetingForm";
+import MeetingForm, { type meetingForm } from "../components/MeetingForm";
 import { useRouter } from "next/navigation";
 import { useClientStore } from "../../providers/clientStoreProvider";
 
