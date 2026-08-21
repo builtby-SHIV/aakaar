@@ -1,13 +1,9 @@
-import type { IAgoraRTCClient } from "agora-rtc-react";
-
 export interface clientState {
-    RTCClient: IAgoraRTCClient | undefined,
-    channelName: string
+    roomName: string
 };
 
 export interface clientActions {
-    setRTCClient: (RTCClient: IAgoraRTCClient | undefined) =>  void,
-    setChannelName: (channelName: string) => void;
+    setRoomName: (roomName: string) => void;
 };
 
 export type clientStore = clientState & { actions: clientActions };

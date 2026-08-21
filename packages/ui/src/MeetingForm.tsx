@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 const schema = z.object({
-    channelName: z.string().nonempty("channel name is compulsary")
+    roomName: z.string().nonempty("room name is compulsary")
 });
 
 export type meetingForm = z.infer<typeof schema>;
@@ -27,10 +27,10 @@ const MeetingForm = ({ onSubmit }: meetingFormProps) => {
                 onSubmit={handleSubmit(onSubmit)}
             >
                 <input
-                    {...register("channelName")}
-                    placeholder="Enter ChannelName"
+                    {...register("roomName")}
+                    placeholder="Enter roomName"
                 />
-                {errors.channelName && <span className="text-red-400">{errors.channelName.message}</span>}
+                {errors.roomName && <span className="text-red-400">{errors.roomName.message}</span>}
                 <button
                     type="submit"
                     className="text-white"

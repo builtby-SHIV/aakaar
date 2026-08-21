@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { useClientStore } from "../../providers/clientStoreProvider";
 
 export default function Page () {
-    const { setChannelName } = useClientStore((state) => state.actions);
+    const { setRoomName } = useClientStore((state) => state.actions);
     const router = useRouter();
     const onSubmit = (data: meetingForm) => {
-        setChannelName(data.channelName);
-        router.push(`/video-meet/${encodeURIComponent(data.channelName)}`);
+        setRoomName(data.roomName);
+        router.push(`/video-meet/${encodeURIComponent(data.roomName)}`);
     };
 
     return (
