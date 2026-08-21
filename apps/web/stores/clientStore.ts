@@ -1,5 +1,5 @@
 import { createStore } from "zustand";
-import type { clientState, clientStore } from "../types";
+import type { clientState, clientStore } from "../lib/types";
 
 export const defaultInitState: clientState = {
     roomName: "",
@@ -7,9 +7,9 @@ export const defaultInitState: clientState = {
 
 export const createClientStore = (initState = defaultInitState) => {
     return createStore<clientStore>()((set) => ({
-    ...initState,
-    actions: {
+        ...initState,
+        actions: {
         setRoomName: (roomName) => set({ roomName }),
-    },
+        },
     }));
 };

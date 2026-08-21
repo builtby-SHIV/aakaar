@@ -13,11 +13,12 @@
   "dependencies": {
     "@livekit/components-react": "^2.9.24",
     "@livekit/components-styles": "^1.2.0",
+    "@repo/api": "*",
     "@repo/lib": "*",
     "@repo/ui": "*",
-    "@repo/api": "*",
     "@tanstack/react-query": "^5.101.4",
     "@trpc/client": "^11.18.0",
+    "@trpc/react-query": "^11.18.0",
     "@trpc/tanstack-react-query": "^11.18.0",
     "agora-rtc-react": "^2.5.1",
     "agora-rtc-sdk-ng": "^4.24.7",

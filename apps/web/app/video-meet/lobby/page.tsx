@@ -1,11 +1,28 @@
-import { PreJoin, LocalUserChoices } from "@livekit/components-react";
+"use client";
 
-export default function Page({ roomCode }: { roomCode: string }) {
-    const handleSubmit = async (values: LocalUserChoices) => {
+import { PreJoin, LocalUserChoices } from "@livekit/components-react";
+import { trpc } from "../../../lib/trpc";
+import { useRouter } from "next/navigation";
+import { useMeetingStore } from "../../../providers/meetingStoreProvider";
+
+export default function Page({ roomName }: { roomName: string }) {
+    const { mutate } = trpc.meeting.getToken.useMutation();
+    const { setToken } = useMeetingStore((state) =>  state.actions);
+    const router = useRouter();
+    const handleSubmit = (values: LocalUserChoices) => {
     // values = { username, videoEnabled, audioEnabled, videoDeviceId, audioDeviceId }
-    const res = await fetch(`/api/token?room=${roomCode}&name=${values.username}`);
-    const { token, serverUrl } = await res.json();
-    // now navigate to the actual room, passing token + serverUrl + values along
+    mutate(
+        { 
+            roomName, 
+            participantName: "shiv" 
+        },
+        { 
+            onSuccess: (data) => {
+                setToken(data.token);
+                router.replace(`/video-meet/${roomName}`)
+            }
+        }
+    );
 };
 
     return (

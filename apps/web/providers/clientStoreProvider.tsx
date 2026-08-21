@@ -1,38 +1,34 @@
-'use client';
+"use client";
 
-import { type ReactNode, createContext, useState, useContext } from 'react'
-import { useStore } from 'zustand'
-import { createClientStore } from '../stores/clientStore';
-import type { clientStore } from "../types";
+import { type ReactNode, createContext, useContext, useState } from "react";
+import { useStore } from "zustand";
+import type { clientStore } from "../lib/types";
+import { createClientStore } from "../stores/clientStore";
 
-export type ClientStoreApi = ReturnType<typeof createClientStore>
+export type ClientStoreApi = ReturnType<typeof createClientStore>;
 
 export const ClientStoreContext = createContext<ClientStoreApi | undefined>(
   undefined,
-)
+);
 
-export interface clientStoreProviderProps{
-    children: ReactNode
+export interface clientStoreProviderProps {
+  children: ReactNode;
 }
 
-export const ClientStoreProvider = ({
-  children,
-}: clientStoreProviderProps) => {
-  const [store] = useState(() => createClientStore())
+export const ClientStoreProvider = ({ children }: clientStoreProviderProps) => {
+  const [store] = useState(() => createClientStore());
   return (
     <ClientStoreContext.Provider value={store}>
       {children}
     </ClientStoreContext.Provider>
-  )
-}
+  );
+};
 
-export const useClientStore = <T,>(
-  selector: (store: clientStore) => T,
-): T => {
-  const clientStoreContext = useContext(ClientStoreContext)
+export const useClientStore = <T,>(selector: (store: clientStore) => T): T => {
+  const clientStoreContext = useContext(ClientStoreContext);
   if (!clientStoreContext) {
-    throw new Error(`useClientStore must be used within clientStoreProvider`)
+    throw new Error(`useClientStore must be used within clientStoreProvider`);
   }
 
-  return useStore(clientStoreContext, selector)
-}
+  return useStore(clientStoreContext, selector);
+};
