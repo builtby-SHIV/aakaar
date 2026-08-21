@@ -1,0 +1,20 @@
+{
+  "name": "@repo/api",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@trpc/server": "^11.18.0",
+    "livekit-server-sdk": "^2.18.0",
+    "zod": "^4.4.3"
+  },
+  "exports": {
+    "./*": "./src/*.ts"
+  }
+}
