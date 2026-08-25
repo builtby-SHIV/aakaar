@@ -25,17 +25,23 @@ const MeetingForm = ({ onSubmit }: meetingFormProps) => {
         <div>
             <form
                 onSubmit={handleSubmit(onSubmit)}
+                className="flex flex-col gap-4"
             >
                 <input
                     {...register("roomName")}
-                    placeholder="Enter roomName"
+                    placeholder="Enter room name"
+                    className="rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-2 text-white outline-none focus:border-orange-500"
                 />
-                {errors.roomName && <span className="text-red-400">{errors.roomName.message}</span>}
+                {errors.roomName && (
+                    <span className="text-sm text-red-400">
+                        {errors.roomName.message}
+                    </span>
+                )}
                 <button
                     type="submit"
-                    className="text-white"
+                    className="rounded-lg bg-orange-500 px-4 py-2 font-medium text-white"
                 >
-                    Submit
+                    Continue to lobby
                 </button>
             </form>
         </div>

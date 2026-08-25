@@ -29,6 +29,7 @@ export const meetingRouter = router({
 
             return {
                 token: await token.toJwt(),
+                serverUrl: ENV.LIVEKIT_URL,
             };
     }),
 

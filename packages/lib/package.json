@@ -4,12 +4,13 @@
   "exports": {
     "./*": "./src/*.ts"
   },
-  "types": "./src/utils.ts",
-  "devDependencies": {
-    "@types/bun": "latest"
+  "scripts": {
+    "check-types": "tsc --noEmit"
   },
-  "peerDependencies": {
-    "typescript": "^5"
+  "devDependencies": {
+    "@repo/typescript-config": "*",
+    "@types/bun": "latest",
+    "typescript": "5.9.2"
   },
   "dependencies": {
     "clsx": "^2.1.1",

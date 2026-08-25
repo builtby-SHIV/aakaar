@@ -11,15 +11,15 @@ export const MeetingStoreContext = createContext<MeetingStoreApi | undefined>(
     undefined,
 );
 
-export interface meetingStoreProviderProps {
+export interface MeetingStoreProviderProps {
     children: ReactNode;
 }
 
-export const MeetingStoreProvider = ({ children }: meetingStoreProviderProps) => {
+export const MeetingStoreProvider = ({ children }: MeetingStoreProviderProps) => {
     const [store] = useState(() => createMeetingStore());
     return (
         <MeetingStoreContext.Provider value={store}>
-        {children}
+            {children}
         </MeetingStoreContext.Provider>
     );
 };

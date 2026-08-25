@@ -1,29 +1,58 @@
 "use client";
 
-import { RoomAudioRenderer, RoomContext } from "@livekit/components-react";
-import { Room } from "livekit-client";
-import { useEffect, useState } from "react";
+import {
+    LiveKitRoom,
+    RoomAudioRenderer,
+    VideoConference,
+} from "@livekit/components-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useMeetingStore } from "../../../providers/meetingStoreProvider";
-import { CallControls } from "../../components/CallControls";
-import { CallGrid } from "../../components/CallGrid";
 
-export default function Page () {
-    const [room] = useState(() => new Room());
-    const { token } = useMeetingStore(useShallow((state) => ({ token: state.token })));
+export default function Page() {
+    const router = useRouter();
+    const {
+        token,
+        serverUrl,
+        audioEnabled,
+        videoEnabled,
+    } = useMeetingStore(
+        useShallow((state) => ({
+            token: state.token,
+            serverUrl: state.serverUrl,
+            audioEnabled: state.audioEnabled,
+            videoEnabled: state.videoEnabled,
+        })),
+    );
+    const { reset } = useMeetingStore((state) => state.actions);
+
     useEffect(() => {
-        const serverURl = process.env.LIVEKIT_URL;
-        if (serverURl === undefined)
-            return;
-        room.connect(serverURl, token);
-        return () => { room.disconnect(); };
-    }, [room]);
+        if (!token || !serverUrl)
+            router.replace("/video-meet");
+    }, [token, serverUrl, router]);
+
+    const handleDisconnected = useCallback(() => {
+        reset();
+        router.push("/video-meet");
+    }, [reset, router]);
+
+    if (!token || !serverUrl)
+        return null;
 
     return (
-        <RoomContext.Provider value={room}>
+        <LiveKitRoom
+            token={token}
+            serverUrl={serverUrl}
+            connect
+            audio={audioEnabled}
+            video={videoEnabled}
+            onDisconnected={handleDisconnected}
+            data-lk-theme="default"
+            className="h-dvh"
+        >
+            <VideoConference />
             <RoomAudioRenderer />
-            <CallGrid />
-            <CallControls />
-        </RoomContext.Provider>
+        </LiveKitRoom>
     );
 }

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import "@livekit/components-styles";
 import { ClientStoreProvider } from "../providers/clientStoreProvider";
-import Providers from "../providers/tanStackProvider";
 import { TrpcProvider } from "../providers/trpcProvider";
 import { MeetingStoreProvider } from "../providers/meetingStoreProvider";
 
