@@ -11,12 +11,23 @@
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@repo/ui": "*",
+    "@livekit/components-react": "^2.9.24",
+    "@livekit/components-styles": "^1.2.0",
+    "@repo/api": "*",
     "@repo/lib": "*",
+    "@repo/ui": "*",
+    "@tanstack/react-query": "^5.101.4",
+    "@trpc/client": "^11.18.0",
+    "@trpc/react-query": "^11.18.0",
+    "@trpc/tanstack-react-query": "^11.18.0",
+    "agora-rtc-react": "^2.5.1",
+    "agora-rtc-sdk-ng": "^4.24.7",
+    "livekit-client": "^2.22.0",
     "lucide-react": "^1.31.0",
     "next": "16.3.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",

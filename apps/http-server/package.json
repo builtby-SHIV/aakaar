@@ -4,21 +4,30 @@
   "type": "module",
   "scripts": {
     "build": "tsc -b",
-    "dev": "node --watch src/index.ts",
-    "start": "tsc -b && node dist/index.js"
+    "dev": "tsx --watch src/index.ts",
+    "start": "tsx -b && node dist/index.js"
   },
   "private": true,
   "devDependencies": {
-    "@repo/typescript-config": "*",
     "@repo/eslint-config": "*",
-    "@types/bun": "latest",
-    "eslint": "^10.8.1"
+    "@repo/typescript-config": "*",
+    "@repo/api": "*",
+    "@types/bun": "^1.4.0",
+    "@types/cors": "^2.8.19",
+    "@types/node": "^26.2.0",
+    "eslint": "^10.8.1",
+    "tsx": "^4.23.12"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
+    "@trpc/server": "^11.18.0",
     "@types/express": "^5.0.6",
-    "express": "^5.2.1"
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "livekit-server-sdk": "^2.18.0",
+    "zod": "^4.4.3"
   }
 }
