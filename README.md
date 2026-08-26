@@ -1,158 +1,64 @@
-# Turborepo starter
+# Aakaar
 
-This Turborepo starter is maintained by the Turborepo core team.
+A local podcast recording platform for creators paired with an in-browser lightweight video editor. **Aakaar** is an all-in-one studio to host, record, edit, and export high-quality content—without ever leaving your browser.
 
-## Using this example
+---
 
-Run the following command:
+## ✨ Features
 
-```sh
-npx create-turbo@latest
+- 🎙️ **Local Studio Recording**: Record high-fidelity, multitrack audio & video locally on each participant's device to avoid internet dropouts and compression artifacts.
+- ✂️ **In-Browser Video Editor**: Built-in lightweight editor to trim, slice, and assemble recorded tracks right inside the browser.
+- 🌐 **All-in-One Workflow**: Host video meetings, record episodes, edit footage, and export finished files in a unified web experience.
+- ⚡ **Modern Monorepo Architecture**: Powered by Turborepo, Next.js, LiveKit, tRPC, and Bun/Node.
+
+---
+
+## 📁 Repository Structure
+
+```tree
+├── apps/
+│   ├── web/           # Next.js frontend (Studio UI, PreJoin lobby, Video Editor)
+│   └── http-server/   # Express + tRPC backend (LiveKit token generation & session management)
+├── packages/
+│   ├── api/           # Shared tRPC routers and API contracts
+│   ├── ui/            # Shared React UI components
+│   ├── lib/           # Shared utilities and helpers
+│   ├── typescript-config/ # Shared TypeScript configs
+│   └── eslint-config/     # Shared ESLint rules
 ```
 
-## What's inside?
+---
 
-This Turborepo includes the following packages/apps:
+## 🚀 Getting Started
 
-### Apps and Packages
+### Prerequisites
 
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- [Bun](https://bun.sh/) (v1.3+ recommended) or [Node.js](https://nodejs.org/) (v18+)
+- LiveKit Server credentials (`LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`)
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+### 1. Installation
 
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+bun install
 ```
 
-Without global `turbo`, use your package manager:
+### 2. Configure Environment Variables
 
-```sh
-cd my-turborepo
-npx turbo build
-bun dlx turbo build
-bun exec turbo build
+Create a `.env` file in the root / relevant apps with your LiveKit credentials:
+
+```env
+LIVEKIT_URL=wss://your-livekit-url.livekit.cloud
+LIVEKIT_API_KEY=your_api_key
+LIVEKIT_API_SECRET=your_api_secret
+NEXT_PUBLIC_LIVEKIT_URL=wss://your-livekit-url.livekit.cloud
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+### 3. Run Development Server
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
+```bash
+bun dev
 ```
 
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-bun exec turbo build --filter=docs
-bun exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-bun exec turbo dev
-bun exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-bun exec turbo dev --filter=web
-bun exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-bun exec turbo login
-bun exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-bun exec turbo link
-bun exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+This starts:
+- **Web App**: [http://localhost:3000](http://localhost:3000)
+- **HTTP/tRPC Server**: [http://localhost:3001](http://localhost:3001) (or configured `PORT`)
