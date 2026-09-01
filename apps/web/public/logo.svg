@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" fill="none">
+  <rect width="32" height="32" rx="6" y="4" fill="#141413" />
+  <circle cx="16" cy="20" r="10" stroke="#F7F6F2" stroke-width="1.8" />
+  <rect x="11" y="15" width="10" height="10" rx="1.5" fill="#F7F6F2" />
+  <circle cx="16" cy="20" r="2" fill="#141413" />
+  <text x="44" y="26" font-family="Newsreader, serif" font-size="20" font-weight="600" fill="#141413" letter-spacing="-0.02em">Aakaar</text>
+</svg>
