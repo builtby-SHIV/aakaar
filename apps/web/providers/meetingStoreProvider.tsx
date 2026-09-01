@@ -2,7 +2,7 @@
 
 import { type ReactNode, createContext, useContext, useState } from "react";
 import { useStore } from "zustand";
-import { createMeetingStore } from "../app/stores/meetingStore";
+import { createMeetingStore } from "../stores/meetingStore";
 import type { meetingStore } from "../lib/types";
 
 export type MeetingStoreApi = ReturnType<typeof createMeetingStore>;

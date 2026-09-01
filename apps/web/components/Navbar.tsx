@@ -21,7 +21,7 @@ export function Navbar({ mode = "landing" }: NavbarProps) {
         {mode === "landing" ? (
           <>
             {/* Minimal Nav Links */}
-            <nav className="hidden md:flex items-center gap-8 text-sm text-[#7A7870] font-normal">
+            <nav className="hidden md:flex items-center gap-8 text-sm text-muted font-normal">
               <Link href="#workflow" className="hover:text-[#141413] transition-colors">
                 Workflow
               </Link>
@@ -39,8 +39,8 @@ export function Navbar({ mode = "landing" }: NavbarProps) {
             {/* CTAs */}
             <div className="flex items-center gap-3">
               <Link
-                href="/dashboard"
-                className="text-sm font-medium text-[#7A7870] hover:text-[#141413] px-3.5 py-1.5 transition-colors hidden sm:block"
+                href="/api/auth/signin"
+                className="text-sm font-medium text-muted hover:text-[#141413] px-3.5 py-1.5 transition-colors hidden sm:block"
               >
                 Sign in
               </Link>
