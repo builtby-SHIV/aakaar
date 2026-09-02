@@ -2,7 +2,7 @@
 
 import { type ReactNode, createContext, useContext, useState } from "react";
 import { useStore } from "zustand";
-import { createClientStore } from "../app/stores/clientStore";
+import { createClientStore } from "../stores/clientStore";
 import type { clientStore } from "../lib/types";
 
 export type ClientStoreApi = ReturnType<typeof createClientStore>;

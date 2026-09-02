@@ -1,3 +1,4 @@
+
 import "@livekit/components-styles";
 import {
   JetBrains_Mono,
@@ -8,6 +9,7 @@ import { ClientStoreProvider } from "../providers/clientStoreProvider";
 import { MeetingStoreProvider } from "../providers/meetingStoreProvider";
 import { TRPCReactProvider } from "../trpc/client";
 import "./globals.css";
+import { SessionProvider } from "next-auth/react";
 
 const editorialSerif = Newsreader({
   subsets: ["latin"],
@@ -55,11 +57,15 @@ export default function RootLayout({
       className={`${editorialSerif.variable} ${sansGrotesk.variable} ${monoFont.variable}`}
     >
       <body className="font-sans antialiased bg-[#F7F6F2] text-[#141413]">
-        <TRPCReactProvider>
-          <ClientStoreProvider>
-            <MeetingStoreProvider>{children}</MeetingStoreProvider>
-          </ClientStoreProvider>
-        </TRPCReactProvider>
+        <SessionProvider>
+          <TRPCReactProvider>
+            <ClientStoreProvider>
+              <MeetingStoreProvider>
+                {children}
+              </MeetingStoreProvider>
+            </ClientStoreProvider>
+          </TRPCReactProvider>
+        </SessionProvider>
       </body>
     </html>
   );
