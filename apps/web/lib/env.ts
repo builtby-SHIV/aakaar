@@ -7,7 +7,8 @@ const EnvSchema = z.object({
     LIVEKIT_API_SECRET: z.string().nonempty(),
     GOOGLE_CLIENT_ID: z.string().nonempty(),
     GOOGLE_CLIENT_SECRET: z.string().nonempty(),
-    AUTH_SECRET: z.string().min(32)
+    AUTH_SECRET: z.string().min(32),
+    DATABASE_URL: z.url().nonempty()
 });
 
 export const ENV = EnvSchema.parse(process.env);
