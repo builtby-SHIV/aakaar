@@ -1,5 +1,5 @@
 import React from "react";
-import { googleLogIn } from "../app/actions/actions";
+import { googleLogIn } from "../actions/actions";
 
 interface LogInProps {
     variant?: "navbar" | "button" | "card";
@@ -95,7 +95,7 @@ export function LogIn({
                 type="submit"
                 name="action"
                 value="google"
-                className="w-full justify-center px-4 py-2.5 border border-[#E5E3DC] bg-[#FFFFFF] hover:bg-[#F2F0EB] text-[#141413] text-sm font-medium rounded-md transition-all flex items-center gap-2.5 shadow-xs cursor-pointer"
+                className="px-4 py-2 border border-[#E5E3DC] bg-[#FFFFFF] hover:bg-[#F2F0EB] text-[#141413] text-sm font-medium rounded-md transition-all flex items-center gap-2 shadow-xs cursor-pointer"
             >
                 {showIcon && <GoogleIcon className="w-4 h-4" />}
                 <span>{label || "Sign in with Google"}</span>

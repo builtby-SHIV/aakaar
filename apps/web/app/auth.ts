@@ -20,6 +20,9 @@ export const authConfig = NextAuth({
             }
         }),
     ],
+    pages: {
+        signIn: "/login",
+    },
 });
 
 export const auth: typeof authConfig.auth = authConfig.auth;

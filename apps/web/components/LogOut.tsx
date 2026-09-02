@@ -1,7 +1,7 @@
 import React from "react";
-import { googleLogIn } from "../app/actions/actions";
+import { googleLogOut } from "../app/actions/actions";
 
-interface LogInProps {
+interface LogOutProps {
     variant?: "navbar" | "button" | "card";
     className?: string;
     label?: string;
@@ -36,23 +36,23 @@ function GoogleIcon({ className = "w-4 h-4" }: { className?: string }) {
     );
 }
 
-export function LogIn({
+export function LogOut({
     variant = "button",
     className = "",
     label,
     showIcon = true,
-}: LogInProps) {
+}: LogOutProps) {
     if (variant === "navbar") {
         return (
-            <form action={googleLogIn} className="inline-flex">
+            <form action={googleLogOut} className="inline-flex">
                 <button
                     type="submit"
                     name="action"
                     value="google"
-                    className={`text-sm font-medium text-[#7A7870] hover:text-[#141413] px-3 py-1.5 rounded-md hover:bg-[#F2F0EB] transition-colors cursor-pointer flex items-center gap-2 ${className}`}
+                    className={`text-sm font-medium text-muted hover:text-[#141413] px-3 py-1.5 rounded-md hover:bg-surface-hover transition-colors cursor-pointer flex items-center gap-2 ${className}`}
                 >
                     {showIcon && <GoogleIcon className="w-3.5 h-3.5" />}
-                    <span>{label || "Sign in"}</span>
+                    <span>{label || "Sign out"}</span>
                 </button>
             </form>
         );
@@ -61,7 +61,7 @@ export function LogIn({
     if (variant === "card") {
         return (
             <div className={`p-8 rounded-xl border border-[#E5E3DC] bg-[#FFFFFF] shadow-sm max-w-sm w-full text-center space-y-6 ${className}`}>
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                     <span className="text-xs uppercase font-mono tracking-widest text-[#7A7870]">
                         Authentication
                     </span>
@@ -71,9 +71,9 @@ export function LogIn({
                     <p className="text-sm text-[#7A7870]">
                         Sign in with your Google account to access your studio workspace and saved recordings.
                     </p>
-                </div>
+                </div> */}
 
-                <form action={googleLogIn}>
+                <form action={googleLogOut}>
                     <button
                         type="submit"
                         name="action"
@@ -81,7 +81,7 @@ export function LogIn({
                         className="w-full py-2.5 px-4 bg-[#141413] text-[#F7F6F2] hover:bg-[#2B2A27] rounded-md font-medium text-sm transition-all flex items-center justify-center gap-2.5 shadow-sm cursor-pointer"
                     >
                         {showIcon && <GoogleIcon className="w-4 h-4" />}
-                        <span>{label || "Sign in with Google"}</span>
+                        <span>{label || "Signing Out with Google"}</span>
                     </button>
                 </form>
             </div>
@@ -90,18 +90,18 @@ export function LogIn({
 
     // Default "button" variant
     return (
-        <form action={googleLogIn} className={`inline-block ${className}`}>
+        <form action={googleLogOut} className={`inline-block ${className}`}>
             <button
                 type="submit"
                 name="action"
                 value="google"
-                className="w-full justify-center px-4 py-2.5 border border-[#E5E3DC] bg-[#FFFFFF] hover:bg-[#F2F0EB] text-[#141413] text-sm font-medium rounded-md transition-all flex items-center gap-2.5 shadow-xs cursor-pointer"
+                className="px-4 py-2 border border-[#E5E3DC] bg-[#FFFFFF] hover:bg-[#F2F0EB] text-[#141413] text-sm font-medium rounded-md transition-all flex items-center gap-2 shadow-xs cursor-pointer"
             >
                 {showIcon && <GoogleIcon className="w-4 h-4" />}
-                <span>{label || "Sign in with Google"}</span>
+                <span>{label || "Signing Out with Google"}</span>
             </button>
         </form>
     );
 }
 
-export default LogIn;
+export default LogOut;

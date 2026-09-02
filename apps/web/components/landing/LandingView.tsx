@@ -12,17 +12,17 @@ import { LocalMultitrackSection } from "./LocalMultitrackSection";
 import { WorkflowComparisonSection } from "./WorkflowComparisonSection";
 
 export function LandingView() {
-  return (
-    <div className="min-h-screen bg-[#F7F6F2] text-[#141413] selection:bg-[#141413] selection:text-[#F7F6F2]">
-      <Navbar mode="landing" />
-      <HeroSection />
-      <WorkflowComparisonSection />
-      <LocalMultitrackSection />
-      <InteractiveEditorDemoSection />
-      <EditorialCaptionsSection />
-      <DirectExportSection />
-      <CtaSection />
-      <Footer />
-    </div>
-  );
+    return (
+        <div className="min-h-screen bg-[#F7F6F2] text-[#141413] selection:bg-[#141413] selection:text-[#F7F6F2]">
+            <Navbar mode="landing" />
+            <HeroSection />
+            <WorkflowComparisonSection />
+            <LocalMultitrackSection />
+            <InteractiveEditorDemoSection />
+            <EditorialCaptionsSection />
+            <DirectExportSection />
+            <CtaSection />
+            <Footer />
+        </div>
+    );
 }
