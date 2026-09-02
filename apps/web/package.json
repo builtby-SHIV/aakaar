@@ -16,6 +16,7 @@
         "@livekit/components-styles": "^1.2.0",
         "@repo/lib": "*",
         "@repo/ui": "*",
+        "@repo/database": "*",
         "@tanstack/react-query": "^5.102.8",
         "@trpc/client": "^11.18.0",
         "@trpc/server": "^11.18.0",
@@ -35,7 +36,6 @@
         "zustand": "^5.0.15"
     },
     "devDependencies": {
-        "@repo/database": "*",
         "@repo/eslint-config": "*",
         "@repo/typescript-config": "*",
         "@tailwindcss/postcss": "^4.3.3",

@@ -104,7 +104,7 @@ export function Navbar({ mode = "landing" }: NavbarProps) {
 
             {/* Quick Action */}
             <div className="flex items-center gap-3">
-              <div className="hidden sm:block">
+              <div className="">
                 <LogOut variant="navbar" />
               </div>
               <Link

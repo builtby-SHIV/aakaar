@@ -5,7 +5,7 @@ export const usersTable = pgTable("users", {
     name: varchar().notNull(),
     email: varchar().unique().notNull(),
 }, (table) => [
-    index("name_idx").on(table.name),
+    index("user_name_idx").on(table.name),
     uniqueIndex("email_idx").on(table.email)
 ]);
 
@@ -14,7 +14,7 @@ export const projectsTable = pgTable("projects", {
     name: varchar().notNull(),
     userId: integer("user_id").references(() => usersTable.id),
 }, (table) => [
-    index("name_idx").on(table.name),
+    index("project_name_idx").on(table.name),
 ]);
 
 export const videosTable = pgTable("videos", {
@@ -22,7 +22,7 @@ export const videosTable = pgTable("videos", {
     name: varchar().notNull(),
     projectId: integer("project_id").references(() => projectsTable.id),
 }, (table) => [
-    index("name_idx").on(table.name),
+    index("video_name_idx").on(table.name),
 ]);
 
 export const videoEditsTable = pgTable("videoEdits", {
