@@ -5,7 +5,7 @@
     "main": "./src/drizzle.ts",
     "scripts": {
         "db:generate": "drizzle-kit generate",
-        "db:migrate": "drizzle-kit generate",
+        "db:migrate": "tsx src/migrate.ts",
         "db:studio": "drizzle-kit studio"
     },
     "devDependencies": {
@@ -14,12 +14,13 @@
         "@repo/typescript-config": "*",
         "@repo/ui": "*",
         "drizzle-kit": "^1.0.0-rc.4",
+        "tsx": "^4.23.13",
         "typescript": "^7.0.2"
     },
     "dependencies": {
         "@neondatabase/serverless": "^1.1.0",
         "@types/node": "^26.4.1",
         "dotenv": "^17.4.2",
-        "drizzle-orm": "^1.0.0-rc.4"
+        "drizzle-orm": "^0.45.2"
     }
 }
