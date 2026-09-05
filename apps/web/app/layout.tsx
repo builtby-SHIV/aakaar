@@ -1,9 +1,9 @@
 
 import "@livekit/components-styles";
 import {
-  JetBrains_Mono,
-  Newsreader,
-  Plus_Jakarta_Sans,
+    JetBrains_Mono,
+    Newsreader,
+    Plus_Jakarta_Sans,
 } from "next/font/google";
 import { ClientStoreProvider } from "../providers/clientStoreProvider";
 import { MeetingStoreProvider } from "../providers/meetingStoreProvider";
@@ -12,16 +12,16 @@ import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 
 const editorialSerif = Newsreader({
-  subsets: ["latin"],
-  style: ["normal", "italic"],
-  variable: "--font-editorial-serif",
-  display: "swap",
+    subsets: ["latin"],
+    style: ["normal", "italic"],
+    variable: "--font-editorial-serif",
+    display: "swap",
 });
 
 const sansGrotesk = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans-grotesk",
-  display: "swap",
+    subsets: ["latin"],
+    variable: "--font-sans-grotesk",
+    display: "swap",
 });
 
 const monoFont = JetBrains_Mono({
@@ -47,26 +47,26 @@ const monoFont = JetBrains_Mono({
 // };
 
 export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html
-      lang="en"
-      className={`${editorialSerif.variable} ${sansGrotesk.variable} ${monoFont.variable}`}
-    >
-      <body className="font-sans antialiased bg-[#F7F6F2] text-[#141413]">
-        <SessionProvider>
-          <TRPCReactProvider>
-            <ClientStoreProvider>
-              <MeetingStoreProvider>
-                {children}
-              </MeetingStoreProvider>
-            </ClientStoreProvider>
-          </TRPCReactProvider>
-        </SessionProvider>
-      </body>
-    </html>
-  );
+    children,
+    }: Readonly<{
+        children: React.ReactNode;
+    }>) {
+    return (
+        <html
+            lang="en"
+            className={`${editorialSerif.variable} ${sansGrotesk.variable} ${monoFont.variable}`}
+        >
+        <body className="font-sans antialiased bg-[#F7F6F2] text-[#141413]">
+            <SessionProvider>
+                <TRPCReactProvider>
+                    <ClientStoreProvider>
+                        <MeetingStoreProvider>
+                            {children}
+                        </MeetingStoreProvider>
+                    </ClientStoreProvider>
+                </TRPCReactProvider>
+            </SessionProvider>
+        </body>
+        </html>
+    );
 }
