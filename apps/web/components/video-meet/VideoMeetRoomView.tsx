@@ -69,26 +69,16 @@ export function VideoMeetRoomView() {
 
                 <div className="h-3 w-px bg-[#33322E]" />
 
-                    <div className="flex items-center gap-2">
-                        <span className="font-medium text-xs text-white">
-                            {activeRoom}
-                        </span>
-                        <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/50 px-1.5 py-0.5 rounded border border-emerald-500/20">
-                            LiveKit Connected
-                        </span>
-                    </div>
+                <div className="flex items-center gap-2">
+                    <span className="font-medium text-xs text-white">
+                        {activeRoom}
+                    </span>
+                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/50 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                        LiveKit Connected
+                    </span>
                 </div>
-
-                {/* Right: Quick In-Browser Editor Action */}
-                <div className="flex items-center gap-3">
-                <Link
-                    href={`/editor/${encodeURIComponent(activeRoom)}`}
-                    className="text-xs font-medium px-3 py-1 bg-white/10 hover:bg-white/20 text-white rounded transition-colors flex items-center gap-1.5"
-                >
-                    <Film className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Open In-Browser Editor</span>
-                </Link>
             </div>
+
         </header>
 
         {/* Main LiveKit Video Room */}

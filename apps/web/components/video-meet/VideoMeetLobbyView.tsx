@@ -103,7 +103,7 @@ export function VideoMeetLobbyView() {
         {/* Main Lobby Viewport */}
         <main className="max-w-2xl w-full mx-auto my-auto space-y-6">
             <div className="text-center space-y-1">
-            <span className="text-[11px] uppercase tracking-widest font-mono text-[#7A7870]">
+            <span className="text-[11px] uppercase tracking-widest font-mono text-muted">
                 Pre-flight Studio Check
             </span>
             <h1 className="text-3xl font-serif font-normal tracking-tight text-[#141413]">
@@ -116,25 +116,25 @@ export function VideoMeetLobbyView() {
             </div>
 
             {errorMessage && (
-            <div className="p-4 rounded-xl bg-[#FFF1F0] border border-[#E53E3E] text-xs text-[#E53E3E] font-mono text-center">
+            <div className="p-4 rounded-xl bg-rec-subtle border border-rec text-xs text-rec font-mono text-center">
                 {errorMessage}
             </div>
             )}
 
             <LobbyPreview
-            onSubmit={handleSubmit}
-            isJoining={getToken.isPending}
-            defaults={{
-                username: "",
-                videoEnabled: true,
-                audioEnabled: true,
-            }}
+                onSubmit={handleSubmit}
+                isJoining={getToken.isPending}
+                defaults={{
+                    username: "",
+                    videoEnabled: true,
+                    audioEnabled: true,
+                }}
             />
         </main>
 
         {/* Footer */}
-        <footer className="max-w-5xl w-full mx-auto text-center text-xs text-[#7A7870] font-mono">
-            Aakaar Kanso Studio · End-to-End Multitrack Isolation
+        <footer className="max-w-5xl w-full mx-auto text-center text-xs text-muted font-mono">
+            Aakaar Studio · End-to-End Multitrack Isolation
         </footer>
         </div>
     );
