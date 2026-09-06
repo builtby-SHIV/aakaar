@@ -101,8 +101,8 @@ export function LobbyPreview({
         async function initVideo() {
             try {
                 const constraints: MediaStreamConstraints = {
-                    video: defaults?.videoDeviceId
-                        ? { deviceId: { exact: defaults.videoDeviceId } }
+                    video: selectedVideoId
+                        ? { deviceId: { exact: selectedVideoId } }
                         : true,
                 };
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -128,7 +128,7 @@ export function LobbyPreview({
             isCancelled = true;
             stopActiveVideoStream();
         };
-    }, [video, defaults?.videoDeviceId, stopActiveVideoStream]);
+    }, [video, selectedVideoId, stopActiveVideoStream]);
 
     useEffect(() => {
         let isCancelled = false;
@@ -136,8 +136,8 @@ export function LobbyPreview({
         async function initAudio() {
             try {
                 const constraints: MediaStreamConstraints = {
-                    audio: defaults?.audioDeviceId
-                        ? { deviceId: { exact: defaults.audioDeviceId } }
+                    audio: selectedAudioId
+                        ? { deviceId: { exact: selectedAudioId } }
                         : true,
                 };
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -167,7 +167,7 @@ export function LobbyPreview({
             }
             setAudioStreamReady(false);
         };
-    }, [defaults?.audioDeviceId]);
+    }, [selectedAudioId]);
 
     useEffect(() => {
         if (!audioStreamRef.current) 
