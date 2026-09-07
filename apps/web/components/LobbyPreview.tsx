@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Mic, MicOff, Video, VideoOff, ArrowRight, ChevronDown, Settings2 } from "lucide-react";
 import { WaveformPreview } from "./WaveformPreview";
+import { useMeetingStore } from "../providers/meetingStoreProvider";
 
 export interface UserMediaChoices {
     username: string;
@@ -25,13 +26,20 @@ export function LobbyPreview({
 }: LobbyPreviewProps) {
     const [username, setUsername] = useState(defaults?.username ?? "");
     const [video, setVideo] = useState(defaults?.videoEnabled ?? true);
+    const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
+    const [selectedVideoId, setSelectedVideoId] = useState<string>(defaults?.videoDeviceId ?? "");
+    
     const [audio, setAudio] = useState(defaults?.audioEnabled ?? true);
     const [audioLevel, setAudioLevel] = useState<number>(0);
-
-    const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
     const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
-    const [selectedVideoId, setSelectedVideoId] = useState<string>(defaults?.videoDeviceId ?? "");
     const [selectedAudioId, setSelectedAudioId] = useState<string>(defaults?.audioDeviceId ?? "");
+    const [audioStreamReady, setAudioStreamReady] = useState(false);
+
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const videoStreamRef = useRef<MediaStream | null>(null);
+    const audioStreamRef = useRef<MediaStream | null>(null);
+
+    const { setAudioDeviceId, setVideoDeviceId } = useMeetingStore((state) => state.actions);
 
     useEffect(() => {
         async function loadDevices() {
@@ -72,10 +80,6 @@ export function LobbyPreview({
         }
     }, []);
 
-    const videoRef = useRef<HTMLVideoElement>(null);
-    const videoStreamRef = useRef<MediaStream | null>(null);
-    const audioStreamRef = useRef<MediaStream | null>(null);
-    const [audioStreamReady, setAudioStreamReady] = useState(false);
 
     const stopActiveVideoStream = useCallback(() => {
         if (videoStreamRef.current) {
@@ -100,7 +104,7 @@ export function LobbyPreview({
         async function initVideo() {
             try {
                 const constraints: MediaStreamConstraints = {
-                    video: selectedVideoId ? { deviceId: { exact: selectedVideoId } } : true,
+                    video: { ...(selectedVideoId && { deviceId: { exact: selectedVideoId } }), frameRate: { ideal: 120 }},
                 };
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
@@ -332,7 +336,10 @@ export function LobbyPreview({
                         <div className="relative">
                             <select
                                 value={selectedVideoId}
-                                onChange={(e) => setSelectedVideoId(e.target.value)}
+                                onChange={(e) => {
+                                    setSelectedVideoId(e.target.value);
+                                    setVideoDeviceId(e.target.value);
+                                }}
                                 disabled={!video}
                                 className="w-full appearance-none px-3 py-2 pr-8 bg-[#FAF9F6] border border-border rounded-lg text-xs text-[#141413] outline-none focus:border-[#141413] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                             >
@@ -362,7 +369,10 @@ export function LobbyPreview({
                         <div className="relative">
                             <select
                                 value={selectedAudioId}
-                                onChange={(e) => setSelectedAudioId(e.target.value)}
+                                onChange={(e) => {
+                                    setSelectedAudioId(e.target.value);
+                                    setAudioDeviceId(e.target.value);
+                                }}
                                 disabled={!audio}
                                 className="w-full appearance-none px-3 py-2 pr-8 bg-[#FAF9F6] border border-border rounded-lg text-xs text-[#141413] outline-none focus:border-[#141413] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                             >
