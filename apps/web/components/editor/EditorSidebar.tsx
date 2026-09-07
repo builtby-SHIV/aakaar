@@ -22,7 +22,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   ] as const;
 
   return (
-    <aside className="w-16 border-r border-[#E5E3DC] bg-[#FFFFFF] flex flex-col items-center py-4 gap-4 z-20 shrink-0">
+    <aside className="w-16 border-r border-[#2E3033] bg-[#1A1B1D] flex flex-col items-center py-4 gap-4 z-20 shrink-0">
       {tools.map((tool) => {
         const Icon = tool.icon;
         const isActive = activeTool === tool.id;
@@ -33,8 +33,8 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             onClick={() => onSelectTool(isActive ? null : tool.id)}
             className={`w-11 h-11 rounded-lg flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
               isActive
-                ? "bg-[#141413] text-[#F7F6F2] shadow-sm"
-                : "text-[#7A7870] hover:bg-[#F2F0EB] hover:text-[#141413]"
+                ? "bg-[#FA5089] text-white shadow-sm"
+                : "text-[#8B8D90] hover:bg-[#242628] hover:text-[#F2F1ED]"
             }`}
             title={tool.label}
           >

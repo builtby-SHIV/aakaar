@@ -101,7 +101,7 @@ export function RecordButton({ onStart, onStop, className = "" }: RecordButtonPr
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                 isRecording
                     ? "bg-red-950/60 text-red-200 hover:bg-red-900/60 border border-red-500/30"
-                    : "bg-[#2A2926] text-[#F7F6F2] hover:bg-[#33322E] border border-[#3E3C37]"
+                    : "bg-[#242628] text-[#F2F1ED] hover:bg-[#2E3033] border border-[#38393C]"
             } ${className}`}
         >
             {isRecording ? (

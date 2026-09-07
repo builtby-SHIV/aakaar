@@ -83,9 +83,9 @@ export function VideoMeetLobbyView() {
     }
 
     return (
-        <div className="min-h-screen bg-[#F7F6F2] py-12">
+        <div className="min-h-screen bg-[#131415] text-[#F2F1ED] py-12">
             {errorMessage && (
-                <div className="max-w-2xl mx-auto mb-6 p-4 rounded-xl bg-rec-subtle border border-rec text-xs text-rec font-mono text-center">
+                <div className="max-w-2xl mx-auto mb-6 p-4 rounded-xl bg-[#EF4444]/10 border border-[#EF4444]/30 text-xs text-[#EF4444] font-mono text-center">
                     {errorMessage}
                 </div>
             )}

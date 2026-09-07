@@ -45,7 +45,7 @@ export function EditorView({
   };
 
   return (
-    <div className="h-screen w-screen bg-[#F7F6F2] text-[#141413] flex flex-col justify-between overflow-hidden select-none">
+    <div className="h-screen w-screen bg-[#131415] text-[#F2F1ED] flex flex-col justify-between overflow-hidden select-none">
       {/* 1. TOP EDITORIAL BAR */}
       <EditorHeader
         projectId={projectId}

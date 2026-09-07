@@ -46,12 +46,12 @@ export const BrandKitForm: React.FC<BrandKitFormProps> = ({
 
       {/* Save Button */}
       <div className="flex items-center justify-between pt-4">
-        <span className="text-xs text-[#7A7870]">
+        <span className="text-xs text-[#8B8D90]">
           All settings sync locally to your browser storage.
         </span>
         <button
           type="submit"
-          className="px-6 py-2.5 bg-[#141413] text-[#F7F6F2] text-xs font-medium rounded-md hover:bg-[#2B2A27] transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+          className="px-6 py-2.5 bg-[#FA5089] text-white text-xs font-medium rounded-md hover:bg-[#E8457B] transition-all flex items-center gap-2 shadow-sm cursor-pointer"
         >
           {saved ? (
             <Check className="w-4 h-4 text-emerald-400" />

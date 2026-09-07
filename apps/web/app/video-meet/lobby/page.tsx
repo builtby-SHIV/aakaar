@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-[#F7F6F2]" />}>
+        <Suspense fallback={<div className="min-h-screen bg-[#131415]" />}>
             <VideoMeetLobbyView />
         </Suspense>
     );

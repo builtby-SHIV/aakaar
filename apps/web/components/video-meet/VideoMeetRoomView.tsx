@@ -67,9 +67,9 @@ export function VideoMeetRoomView() {
     if (!token || !effectiveServerUrl) return null;
 
     return (
-        <div className="h-screen w-screen bg-[#141413] text-[#F7F6F2] flex flex-col justify-between overflow-hidden select-none">
+        <div className="h-screen w-screen bg-[#131415] text-[#F2F1ED] flex flex-col justify-between overflow-hidden select-none">
         {/* Top Minimal Chrome Bar */}
-        <header className="h-12 px-6 border-b border-[#2A2926] bg-[#1A1917] flex items-center justify-between z-30 shrink-0">
+        <header className="h-12 px-6 border-b border-[#2E3033] bg-[#1A1B1D] flex items-center justify-between z-30 shrink-0">
             <div className="flex items-center gap-3">
                 <button
                     type="button"
@@ -80,7 +80,7 @@ export function VideoMeetRoomView() {
                     <span>Leave</span>
                 </button>
 
-                <div className="h-3 w-px bg-[#33322E]" />
+                <div className="h-3 w-px bg-[#2E3033]" />
 
                 <div className="flex items-center gap-2">
                     <span className="font-medium text-xs text-white">
@@ -99,7 +99,7 @@ export function VideoMeetRoomView() {
                 <button
                     type="button"
                     onClick={() => setIsInfoDialogOpen(true)}
-                    className="p-1.5 rounded-lg text-muted hover:text-white hover:bg-[#2A2926] transition-colors cursor-pointer"
+                    className="p-1.5 rounded-lg text-muted hover:text-white hover:bg-[#242628] transition-colors cursor-pointer"
                     title="Recording Information"
                     aria-label="Recording Information"
                 >
@@ -132,11 +132,11 @@ export function VideoMeetRoomView() {
                 onClick={() => setIsInfoDialogOpen(false)}
             >
                 <div
-                    className="relative w-full max-w-md bg-[#1A1917] border border-[#33322E] rounded-xl shadow-2xl p-6 text-[#F7F6F2] space-y-4"
+                    className="relative w-full max-w-md bg-[#1A1B1D] border border-[#2E3033] rounded-xl shadow-2xl p-6 text-[#F2F1ED] space-y-4"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
-                    <div className="flex items-center justify-between pb-3 border-b border-[#2A2926]">
+                    <div className="flex items-center justify-between pb-3 border-b border-[#2E3033]">
                         <div className="flex items-center gap-2">
                             <Info className="w-4 h-4 text-emerald-400" />
                             <h2 className="text-sm font-semibold tracking-wide">
@@ -146,7 +146,7 @@ export function VideoMeetRoomView() {
                         <button
                             type="button"
                             onClick={() => setIsInfoDialogOpen(false)}
-                            className="p-1 rounded-md text-muted hover:text-white hover:bg-[#2A2926] transition-colors cursor-pointer"
+                            className="p-1 rounded-md text-muted hover:text-white hover:bg-[#242628] transition-colors cursor-pointer"
                             aria-label="Close dialog"
                         >
                             <X className="w-4 h-4" />
@@ -155,7 +155,7 @@ export function VideoMeetRoomView() {
 
                     {/* Points Content */}
                     <div className="space-y-2">
-                        <ul className="space-y-2.5 text-xs text-[#C5C3BC] list-disc list-inside leading-relaxed">
+                        <ul className="space-y-2.5 text-xs text-[#8B8D90] list-disc list-inside leading-relaxed">
                             <li>Keep this browser tab open and active throughout the entire recording session.</li>
                             <li>Local audio and video tracks are being captured directly from your connected devices.</li>
                             <li>Do not refresh or navigate away from the page until you click &quot;Stop Recording&quot;.</li>
@@ -168,7 +168,7 @@ export function VideoMeetRoomView() {
                         <button
                             type="button"
                             onClick={() => setIsInfoDialogOpen(false)}
-                            className="px-4 py-2 bg-[#2A2926] hover:bg-[#33322E] text-xs font-medium rounded-lg text-white transition-colors cursor-pointer"
+                            className="px-4 py-2 bg-[#242628] hover:bg-[#2E3033] text-xs font-medium rounded-lg text-white transition-colors cursor-pointer"
                         >
                             Understood
                         </button>

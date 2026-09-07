@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Download, Share2, Check, Sparkles, Film, Music, Smartphone, Video } from "lucide-react";
+import { X, Download, Share2, Check, Video, Smartphone, Music, Terminal, Copy } from "lucide-react";
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -24,6 +24,8 @@ export function ExportModal({
   const [exportState, setExportState] = useState<"idle" | "rendering" | "completed">("idle");
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState("Compounding local video streams...");
+  const [showCli, setShowCli] = useState(false);
+  const [copiedCli, setCopiedCli] = useState(false);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -37,13 +39,13 @@ export function ExportModal({
             return 100;
           }
           const next = prev + 4;
-          if (next < 30) setCurrentStep("Compounding local video tracks (1080p 60fps)...");
-          else if (next < 65) setCurrentStep("Rendering typography captions & layout transitions...");
-          else if (next < 90) setCurrentStep("Mastering 48 kHz lossless stereo audio stream...");
-          else setCurrentStep("Packaging finalized MP4 container...");
+          if (next < 30) setCurrentStep("FFmpeg Wasm: compounding local camera tracks (1080p 60fps)...");
+          else if (next < 65) setCurrentStep("Rasterizing editorial typography overlays & timing cues...");
+          else if (next < 90) setCurrentStep("Normalizing 48 kHz 24-bit lossless PCM audio (-14 LUFS)...");
+          else setCurrentStep("Packaging finalized MP4 stream container...");
           return next;
         });
-      }, 120);
+      }, 110);
     }
     return () => clearInterval(interval);
   }, [exportState]);
@@ -60,12 +62,16 @@ export function ExportModal({
     onClose();
   };
 
+  const cliCommand = `curl -X POST https://api.aakaar.studio/v1/renders \\
+  -H "Authorization: Bearer aka_live_99214" \\
+  -d '{"preset":"${selectedPreset}","res":"${resolution}","audio":"48khz_pcm"}'`;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#141413]/40 backdrop-blur-sm animate-kanso-fade">
-      <div className="bg-[#F7F6F2] border border-[#E5E3DC] rounded-xl max-w-lg w-full p-6 shadow-2xl relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade">
+      <div className="bg-[#1A1B1D] border border-[#2E3033] rounded-xl max-w-lg w-full p-6 shadow-2xl relative text-[#F2F1ED]">
         <button
           onClick={handleReset}
-          className="absolute top-5 right-5 text-[#7A7870] hover:text-[#141413] p-1 rounded-md hover:bg-[#EFECE6] transition-colors"
+          className="absolute top-5 right-5 text-[#8B8D90] hover:text-[#F2F1ED] p-1 rounded hover:bg-[#242628] transition-colors"
         >
           <X className="w-4 h-4" />
         </button>
@@ -73,30 +79,35 @@ export function ExportModal({
         {exportState === "idle" && (
           <div className="space-y-6">
             <div>
-              <span className="text-[11px] uppercase tracking-widest font-mono text-[#7A7870]">Export Project</span>
-              <h3 className="text-xl font-medium text-[#141413] tracking-tight mt-1 font-serif">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-widest font-mono text-[#FA5089] bg-[#FA5089]/10 px-2 py-0.5 rounded border border-[#FA5089]/20">
+                  RENDER PIPELINE
+                </span>
+                <span className="text-[10px] font-mono text-[#8B8D90]">CLIENT-SIDE WASM</span>
+              </div>
+              <h3 className="text-lg font-medium text-[#F2F1ED] tracking-tight mt-1.5 font-sans">
                 {projectTitle}
               </h3>
-              <p className="text-xs text-[#7A7870] mt-0.5 font-mono">Duration: {duration} · Multitrack synced</p>
+              <p className="text-xs text-[#8B8D90] mt-0.5 font-mono">Duration: {duration} · 2 isolated streams</p>
             </div>
 
             {/* Presets */}
             <div className="space-y-2">
-              <label className="text-xs font-medium text-[#7A7870]">Select Preset</label>
-              <div className="grid grid-cols-3 gap-2">
+              <label className="text-xs font-mono text-[#8B8D90] uppercase tracking-wider">Target Preset</label>
+              <div className="grid grid-cols-3 gap-2.5">
                 <button
                   type="button"
                   onClick={() => setSelectedPreset("youtube")}
                   className={`p-3 rounded-lg border text-left transition-all flex flex-col justify-between h-24 ${
                     selectedPreset === "youtube"
-                      ? "border-[#141413] bg-[#FFFFFF] shadow-sm"
-                      : "border-[#E5E3DC] hover:border-[#D1CEC5] bg-transparent"
+                      ? "border-[#FA5089] bg-[#242628] text-[#F2F1ED]"
+                      : "border-[#2E3033] hover:border-[#38393C] bg-[#131415] text-[#8B8D90]"
                   }`}
                 >
-                  <Video className="w-4 h-4 text-[#141413]" />
+                  <Video className="w-4 h-4 text-[#FA5089]" />
                   <div>
-                    <div className="text-xs font-medium text-[#141413]">YouTube</div>
-                    <div className="text-[10px] text-[#7A7870] font-mono">16:9 Landscape</div>
+                    <div className="text-xs font-medium text-[#F2F1ED]">YouTube Master</div>
+                    <div className="text-[10px] text-[#8B8D90] font-mono">16:9 Landscape</div>
                   </div>
                 </button>
 
@@ -105,14 +116,14 @@ export function ExportModal({
                   onClick={() => setSelectedPreset("short")}
                   className={`p-3 rounded-lg border text-left transition-all flex flex-col justify-between h-24 ${
                     selectedPreset === "short"
-                      ? "border-[#141413] bg-[#FFFFFF] shadow-sm"
-                      : "border-[#E5E3DC] hover:border-[#D1CEC5] bg-transparent"
+                      ? "border-[#FA5089] bg-[#242628] text-[#F2F1ED]"
+                      : "border-[#2E3033] hover:border-[#38393C] bg-[#131415] text-[#8B8D90]"
                   }`}
                 >
-                  <Smartphone className="w-4 h-4 text-[#141413]" />
+                  <Smartphone className="w-4 h-4 text-[#FA5089]" />
                   <div>
-                    <div className="text-xs font-medium text-[#141413]">Short / Reel</div>
-                    <div className="text-[10px] text-[#7A7870] font-mono">9:16 Vertical</div>
+                    <div className="text-xs font-medium text-[#F2F1ED]">Vertical Clip</div>
+                    <div className="text-[10px] text-[#8B8D90] font-mono">9:16 Social</div>
                   </div>
                 </button>
 
@@ -121,36 +132,36 @@ export function ExportModal({
                   onClick={() => setSelectedPreset("podcast")}
                   className={`p-3 rounded-lg border text-left transition-all flex flex-col justify-between h-24 ${
                     selectedPreset === "podcast"
-                      ? "border-[#141413] bg-[#FFFFFF] shadow-sm"
-                      : "border-[#E5E3DC] hover:border-[#D1CEC5] bg-transparent"
+                      ? "border-[#FA5089] bg-[#242628] text-[#F2F1ED]"
+                      : "border-[#2E3033] hover:border-[#38393C] bg-[#131415] text-[#8B8D90]"
                   }`}
                 >
-                  <Music className="w-4 h-4 text-[#141413]" />
+                  <Music className="w-4 h-4 text-[#FA5089]" />
                   <div>
-                    <div className="text-xs font-medium text-[#141413]">Audio Only</div>
-                    <div className="text-[10px] text-[#7A7870] font-mono">48 kHz WAV</div>
+                    <div className="text-xs font-medium text-[#F2F1ED]">Audio Stems</div>
+                    <div className="text-[10px] text-[#8B8D90] font-mono">48 kHz Lossless</div>
                   </div>
                 </button>
               </div>
             </div>
 
-            {/* Quality & Options */}
-            <div className="space-y-3 pt-2 border-t border-[#E5E3DC]">
+            {/* Technical Parameters */}
+            <div className="space-y-3 pt-3 border-t border-[#2E3033]">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-[#141413] font-medium">Resolution</span>
-                <div className="flex items-center gap-1.5 bg-[#EFECE6] p-0.5 rounded-md">
+                <span className="text-[#8B8D90] font-mono">RESOLUTION</span>
+                <div className="flex items-center gap-1.5 bg-[#131415] p-0.5 rounded border border-[#2E3033]">
                   <button
                     onClick={() => setResolution("1080p")}
-                    className={`px-2.5 py-1 rounded text-xs transition-all ${
-                      resolution === "1080p" ? "bg-[#FFFFFF] text-[#141413] font-medium shadow-2xs" : "text-[#7A7870]"
+                    className={`px-2.5 py-1 rounded text-xs font-mono transition-all ${
+                      resolution === "1080p" ? "bg-[#242628] text-[#F2F1ED] font-medium" : "text-[#8B8D90]"
                     }`}
                   >
                     1080p FHD
                   </button>
                   <button
                     onClick={() => setResolution("4k")}
-                    className={`px-2.5 py-1 rounded text-xs transition-all ${
-                      resolution === "4k" ? "bg-[#FFFFFF] text-[#141413] font-medium shadow-2xs" : "text-[#7A7870]"
+                    className={`px-2.5 py-1 rounded text-xs font-mono transition-all ${
+                      resolution === "4k" ? "bg-[#242628] text-[#F2F1ED] font-medium" : "text-[#8B8D90]"
                     }`}
                   >
                     4K UHD
@@ -159,39 +170,69 @@ export function ExportModal({
               </div>
 
               <div className="flex items-center justify-between text-xs">
-                <span className="text-[#141413]">Burn-in editorial captions</span>
+                <span className="text-[#8B8D90] font-mono">BURN_IN_SUBTITLES</span>
                 <input
                   type="checkbox"
                   checked={burnCaptions}
                   onChange={(e) => setBurnCaptions(e.target.checked)}
-                  className="accent-[#141413] w-4 h-4 cursor-pointer"
+                  className="accent-[#FA5089] w-4 h-4 cursor-pointer"
                 />
               </div>
 
               <div className="flex items-center justify-between text-xs">
-                <span className="text-[#141413]">Studio noise leveling & EQ</span>
+                <span className="text-[#8B8D90] font-mono">STUDIO_EQ_LEVELING (-14 LUFS)</span>
                 <input
                   type="checkbox"
                   checked={noiseReduction}
                   onChange={(e) => setNoiseReduction(e.target.checked)}
-                  className="accent-[#141413] w-4 h-4 cursor-pointer"
+                  className="accent-[#FA5089] w-4 h-4 cursor-pointer"
                 />
+              </div>
+
+              {/* CLI Command Toggle */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCli(!showCli)}
+                  className="text-[11px] font-mono text-[#8B8D90] hover:text-[#F2F1ED] flex items-center gap-1.5 transition-colors"
+                >
+                  <Terminal className="w-3 h-3 text-[#FA5089]" />
+                  <span>{showCli ? "Hide cURL command" : "Show cURL API call"}</span>
+                </button>
+
+                {showCli && (
+                  <div className="mt-2 p-2.5 rounded bg-[#131415] border border-[#2E3033] relative">
+                    <pre className="text-[10px] font-mono text-emerald-400 overflow-x-auto select-all">
+                      {cliCommand}
+                    </pre>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(cliCommand);
+                        setCopiedCli(true);
+                        setTimeout(() => setCopiedCli(false), 2000);
+                      }}
+                      className="absolute top-2 right-2 p-1 text-[#8B8D90] hover:text-white bg-[#1A1B1D] rounded border border-[#2E3033]"
+                    >
+                      {copiedCli ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Actions */}
-            <div className="pt-4 flex items-center justify-end gap-3 border-t border-[#E5E3DC]">
+            <div className="pt-4 flex items-center justify-end gap-3 border-t border-[#2E3033]">
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-medium text-[#7A7870] hover:text-[#141413] transition-colors"
+                className="px-3.5 py-1.5 text-xs text-[#8B8D90] hover:text-[#F2F1ED] transition-colors font-mono"
               >
                 Cancel
               </button>
               <button
                 onClick={handleStartExport}
-                className="px-5 py-2 text-xs font-medium bg-[#141413] text-[#F7F6F2] rounded-md hover:bg-[#2B2A27] transition-all flex items-center gap-1.5"
+                className="px-4 py-2 text-xs font-medium bg-[#FA5089] hover:bg-[#E03F74] text-white rounded-md transition-all flex items-center gap-1.5 shadow-sm shadow-[#FA5089]/20"
               >
-                <span>Render & Export</span>
+                <span>Compile & Export</span>
               </button>
             </div>
           </div>
@@ -199,39 +240,41 @@ export function ExportModal({
 
         {exportState === "rendering" && (
           <div className="py-8 space-y-6 text-center">
-            <div className="w-12 h-12 rounded-full border-2 border-[#141413] border-t-transparent animate-spin mx-auto" />
+            <div className="w-12 h-12 rounded-full border-2 border-[#FA5089] border-t-transparent animate-spin mx-auto" />
             
             <div className="space-y-2">
-              <h4 className="text-base font-medium text-[#141413] font-serif">Exporting Video...</h4>
-              <p className="text-xs text-[#7A7870] font-mono h-4">{currentStep}</p>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#FA5089]">WASM Pipeline Active</span>
+              <h4 className="text-base font-medium text-[#F2F1ED]">Encoding Master Container...</h4>
+              <p className="text-xs text-[#8B8D90] font-mono h-4 truncate">{currentStep}</p>
             </div>
 
             {/* Progress Bar */}
             <div className="space-y-1.5 max-w-xs mx-auto">
-              <div className="w-full h-1.5 bg-[#E5E3DC] rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-[#2E3033] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[#141413] transition-all duration-150"
+                  className="h-full bg-[#FA5089] transition-all duration-150"
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <div className="flex justify-between text-[11px] font-mono text-[#7A7870]">
-                <span>Rendering</span>
-                <span>{progress}%</span>
+              <div className="flex justify-between text-[11px] font-mono text-[#8B8D90]">
+                <span>Progress</span>
+                <span className="text-[#F2F1ED]">{progress}%</span>
               </div>
             </div>
           </div>
         )}
 
         {exportState === "completed" && (
-          <div className="py-6 space-y-6 text-center animate-kanso-fade">
-            <div className="w-12 h-12 rounded-full bg-[#2B7A4B]/10 text-[#2B7A4B] flex items-center justify-center mx-auto">
+          <div className="py-6 space-y-6 text-center animate-fade">
+            <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
               <Check className="w-6 h-6" />
             </div>
 
             <div className="space-y-1">
-              <h4 className="text-lg font-medium text-[#141413] font-serif">Your video is ready</h4>
-              <p className="text-xs text-[#7A7870]">
-                1080p MP4 · 48 kHz Lossless Stereo · Burned Captions
+              <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">Master Ready</span>
+              <h4 className="text-lg font-medium text-[#F2F1ED]">Export Complete</h4>
+              <p className="text-xs text-[#8B8D90] font-mono">
+                1080p ProRes / H.264 · 48 kHz PCM Stereo · 1.2 GB
               </p>
             </div>
 
@@ -240,20 +283,20 @@ export function ExportModal({
                 href="#download"
                 onClick={(e) => {
                   e.preventDefault();
-                  alert("Download started: " + projectTitle.toLowerCase().replace(/\s+/g, "_") + ".mp4");
+                  alert("Downloading master: " + projectTitle.toLowerCase().replace(/\s+/g, "_") + ".mp4");
                 }}
-                className="w-full sm:w-auto px-5 py-2.5 text-xs font-medium bg-[#141413] text-[#F7F6F2] rounded-md hover:bg-[#2B2A27] transition-all flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-5 py-2 text-xs font-medium bg-[#FA5089] hover:bg-[#E03F74] text-white rounded-md transition-all flex items-center justify-center gap-2"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Download Video (1.2 GB)</span>
+                <span>Download Master (.mp4)</span>
               </a>
 
               <button
-                onClick={() => alert("Shareable link copied to clipboard: https://aakaar.studio/share/ep12")}
-                className="w-full sm:w-auto px-4 py-2.5 text-xs font-medium border border-[#E5E3DC] bg-[#FFFFFF] hover:bg-[#EFECE6] text-[#141413] rounded-md transition-all flex items-center justify-center gap-2"
+                onClick={() => alert("Permanent share URL copied: https://aakaar.studio/stream/ep12")}
+                className="w-full sm:w-auto px-4 py-2 text-xs font-medium border border-[#2E3033] bg-[#242628] hover:bg-[#2C2E30] text-[#F2F1ED] rounded-md transition-all flex items-center justify-center gap-2 font-mono"
               >
-                <Share2 className="w-3.5 h-3.5" />
-                <span>Copy Share Link</span>
+                <Share2 className="w-3.5 h-3.5 text-[#8B8D90]" />
+                <span>Copy Stream URL</span>
               </button>
             </div>
           </div>

@@ -12,7 +12,7 @@ interface TemplatesViewProps {
 
 export function TemplatesView({ templates = TEMPLATES }: TemplatesViewProps) {
   return (
-    <div className="min-h-screen bg-[#F7F6F2] text-[#141413] flex flex-col justify-between">
+    <div className="min-h-screen bg-[#131415] text-[#F2F1ED] flex flex-col justify-between">
       <div>
         <Navbar mode="app" />
 
