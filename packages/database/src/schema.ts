@@ -7,6 +7,7 @@ import {
     primaryKey, 
     text, 
     timestamp, 
+    uniqueIndex, 
     varchar 
 } from "drizzle-orm/pg-core";
 
@@ -79,7 +80,7 @@ export const projects = pgTable("projects", {
     name: varchar().notNull(),
     userId: text("user_id").references(() => users.id),
 }, (table) => [
-        index("project_name_idx").on(table.name),
+        uniqueIndex("project_name_idx").on(table.name, table.userId),
 ]);
 
 export const videos = pgTable("videos", {
@@ -87,7 +88,7 @@ export const videos = pgTable("videos", {
     name: varchar().notNull(),
     projectId: integer("project_id").references(() => projects.id),
 }, (table) => [
-        index("video_name_idx").on(table.name),
+        uniqueIndex("video_name_idx").on(table.name, table.projectId),
 ]);
 
 export const videoEdits = pgTable("videoEdits", {
