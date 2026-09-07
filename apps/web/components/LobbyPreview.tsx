@@ -248,7 +248,16 @@ export function LobbyPreview({
     return (
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-6 animate-kanso-fade">
             {/* Video Preview Canvas */}
-            <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-[#33322E] bg-[#1A1917] shadow-xl flex items-center justify-center">
+            <div 
+                className="relative 
+                    aspect-video 
+                    w-full overflow-hidden 
+                    rounded-2xl border 
+                    border-[#33322E] 
+                    bg-[#1A1917] 
+                    shadow-xl flex 
+                    items-center 
+                    justify-center">
                 {video ? (
                     <video
                         ref={videoRef}
@@ -259,7 +268,17 @@ export function LobbyPreview({
                     />
                 ) : (
                     <div className="text-center space-y-2 text-stone-400">
-                        <div className="w-16 h-16 rounded-full bg-[#22211E] border border-[#33322E] flex items-center justify-center text-stone-500 mx-auto">
+                        <div 
+                            className="w-16 h-16 
+                                rounded-full 
+                                bg-[#22211E] 
+                                border 
+                                border-[#33322E] 
+                                flex items-center 
+                                justify-center 
+                                text-stone-500 
+                                mx-auto"
+                            >
                             <VideoOff className="w-6 h-6" />
                         </div>
                         <p className="text-xs font-mono">Camera is turned off</p>
@@ -274,7 +293,18 @@ export function LobbyPreview({
                 </div>
 
                 {/* Live Reactive Audio Meter on Video */}
-                <div className="absolute bottom-4 right-4 bg-[#141413]/75 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
+                <div 
+                    className="absolute 
+                        bottom-4 right-4 
+                        bg-[#141413]/75 
+                        backdrop-blur-md 
+                        px-3 py-1.5 
+                        rounded-lg 
+                        border 
+                        border-white/10 
+                        flex items-center 
+                        gap-2"
+                    >
                     <div className="text-[10px] font-mono text-stone-400">MIC</div>
                     <WaveformPreview
                         bars={18}
@@ -341,7 +371,20 @@ export function LobbyPreview({
                                     setVideoDeviceId(e.target.value);
                                 }}
                                 disabled={!video}
-                                className="w-full appearance-none px-3 py-2 pr-8 bg-[#FAF9F6] border border-border rounded-lg text-xs text-[#141413] outline-none focus:border-[#141413] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="w-full 
+                                    appearance-none 
+                                    px-3 py-2 pr-8 
+                                    bg-[#FAF9F6] 
+                                    border 
+                                    border-border 
+                                    rounded-lg text-xs 
+                                    text-[#141413] 
+                                    outline-none 
+                                    focus:border-[#141413] 
+                                    transition-colors 
+                                    cursor-pointer 
+                                    disabled:opacity-40 
+                                    disabled:cursor-not-allowed"
                             >
                                 {videoDevices.length === 0 ? (
                                     <option value="">Default Camera</option>
@@ -353,7 +396,14 @@ export function LobbyPreview({
                                     ))
                                 )}
                             </select>
-                            <ChevronDown className="w-3.5 h-3.5 text-stone-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <ChevronDown 
+                                className="w-3.5 h-3.5 
+                                    text-stone-400 
+                                    absolute right-2.5 
+                                    top-1/2 
+                                    -translate-y-1/2 
+                                    pointer-events-none" 
+                                />
                         </div>
                     </div>
 
@@ -374,7 +424,21 @@ export function LobbyPreview({
                                     setAudioDeviceId(e.target.value);
                                 }}
                                 disabled={!audio}
-                                className="w-full appearance-none px-3 py-2 pr-8 bg-[#FAF9F6] border border-border rounded-lg text-xs text-[#141413] outline-none focus:border-[#141413] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="w-full 
+                                    appearance-none 
+                                    px-3 py-2 pr-8 
+                                    bg-[#FAF9F6] 
+                                    border 
+                                    border-border 
+                                    rounded-lg 
+                                    text-xs 
+                                    text-[#141413] 
+                                    outline-none 
+                                    focus:border-[#141413] 
+                                    transition-colors 
+                                    cursor-pointer 
+                                    disabled:opacity-40 
+                                    disabled:cursor-not-allowed"
                             >
                                 {audioDevices.length === 0 ? (
                                     <option value="">Default Microphone</option>
@@ -386,7 +450,14 @@ export function LobbyPreview({
                                     ))
                                 )}
                             </select>
-                            <ChevronDown className="w-3.5 h-3.5 text-stone-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <ChevronDown 
+                            className="w-3.5 h-3.5 
+                                text-stone-400 
+                                absolute 
+                                right-2.5 top-1/2 
+                                -translate-y-1/2 
+                                pointer-events-none" 
+                            />
                         </div>
                     </div>
                 </div>

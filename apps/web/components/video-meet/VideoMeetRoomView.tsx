@@ -5,19 +5,18 @@ import {
     RoomAudioRenderer,
     VideoConference,
 } from "@livekit/components-react";
-import { ArrowLeft, Circle, Info, Square, X } from "lucide-react";
+import { ArrowLeft, Info, X } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useMeetingStore } from "../../providers/meetingStoreProvider";
-import { startRecording } from "../../lib/utils";
+import { RecordButton } from "./RecordButton";
 
 export function VideoMeetRoomView() {
     const router = useRouter();
     const params = useParams();
     const roomNameParam = params?.["room-name"] as string | undefined;
 
-    const [isRecording, setIsRecording] = useState(false);
     const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
 
     const {
@@ -65,15 +64,6 @@ export function VideoMeetRoomView() {
         router.push("/video-meet");
     }, [reset, router]);
 
-    const handleToggleRecording = () => {
-        if (!isRecording) {
-            setIsRecording(true);
-            setIsInfoDialogOpen(true);
-            startRecording();
-        } else 
-            setIsRecording(false);
-    };
-
     if (!token || !effectiveServerUrl) return null;
 
     return (
@@ -104,27 +94,7 @@ export function VideoMeetRoomView() {
 
             {/* Right: Recording Controls & Info */}
             <div className="flex items-center gap-2">
-                <button
-                    type="button"
-                    onClick={handleToggleRecording}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-                        isRecording
-                            ? "bg-red-950/60 text-red-200 hover:bg-red-900/60 border border-red-500/30"
-                            : "bg-[#2A2926] text-[#F7F6F2] hover:bg-[#33322E] border border-[#3E3C37]"
-                    }`}
-                >
-                    {isRecording ? (
-                        <>
-                            <Square className="w-2.5 h-2.5 fill-red-400 text-red-400" />
-                            <span>Stop Recording</span>
-                        </>
-                    ) : (
-                        <>
-                            <Circle className="w-2.5 h-2.5 fill-red-500 text-red-500" />
-                            <span>Start Recording</span>
-                        </>
-                    )}
-                </button>
+                <RecordButton onStart={() => setIsInfoDialogOpen(true)} />
 
                 <button
                     type="button"
