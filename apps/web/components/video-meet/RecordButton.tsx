@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Circle, Square } from "lucide-react";
 import { useMeetingStore } from "../../providers/meetingStoreProvider";
 import { useShallow } from "zustand/react/shallow";
@@ -13,6 +13,7 @@ export interface RecordButtonProps {
 
 export function RecordButton({ onStart, onStop, className = "" }: RecordButtonProps) {
     const [isRecording, setIsRecording] = useState(false);
+    const [mediaRecorder, setmediaRecorder] = useState<MediaRecorder | null>(null);
 
     const { audioDeviceId, videoDeviceId } = useMeetingStore(useShallow((state) => ({ 
         audioDeviceId: state.audioDeviceId, 
@@ -20,33 +21,18 @@ export function RecordButton({ onStart, onStop, className = "" }: RecordButtonPr
     })));
 
     const startRecording = useCallback(async () => {
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: { width: { ideal: 3840 }, height: { ideal: 2160 }, deviceId: { exact: videoDeviceId } },
-            audio: { deviceId: { exact: audioDeviceId } }
-        });
+        let chunkIndex = 0;
 
-        const mimeTypes = [
-            'video/webm;codecs=av1,opus',       // Next-gen (High Res / Highly Efficient)
-            'video/mp4;codecs=hvc1,mp4a.40.2',  // HEVC / H.265 (Excellent 4K for Safari/Apple)
-            'video/webm;codecs=vp9,opus',      // VP9 (Great 4K for Chrome/Firefox)
-            'video/webm;codecs=h264,opus',     // H.264 WebM (High Compatibility)
-            'video/mp4;codecs=avc1.4d401f,mp4a.40.2', // Universal H.264 MP4 (Fallback)
-        ];
-
-        let selectedMime = '';
-        for ( const mime of mimeTypes ) {
-            if (MediaRecorder.isTypeSupported(mime)) {
-                selectedMime = mime;
-                break;
+        if (mediaRecorder) {
+            mediaRecorder.start(120000);
+            mediaRecorder.ondataavailable = (e: BlobEvent) => {
+                if (e.data.size <= 0)
+                    return;
+                chunkIndex++;
+            // send chunk to R2
             }
         }
-
-        const options = selectedMime ? { mimeType: selectedMime } : {};
-        const mediaRecorder = new MediaRecorder(stream, options);
-        
-        console.log(`Recording started using: ${selectedMime || 'Browser Default'}`);
-        return mediaRecorder;
-    }, []);
+    }, [mediaRecorder]);
 
     const handleToggleRecording = async () => {
         if (!isRecording) {
@@ -67,6 +53,46 @@ export function RecordButton({ onStart, onStop, className = "" }: RecordButtonPr
             // Add stop recording logic here
         }
     };
+
+    useEffect(() => {
+        async function configureRecording() {
+            const stream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 3840 }, height: { ideal: 2160 }, deviceId: { exact: videoDeviceId } },
+            audio: { deviceId: { exact: audioDeviceId } }
+            });
+
+            const mimeTypes = [
+                'video/webm;codecs=av1,opus',       // Next-gen (High Res / Highly Efficient)
+                'video/mp4;codecs=hvc1,mp4a.40.2',  // HEVC / H.265 (Excellent 4K for Safari/Apple)
+                'video/webm;codecs=vp9,opus',      // VP9 (Great 4K for Chrome/Firefox)
+                'video/webm;codecs=h264,opus',     // H.264 WebM (High Compatibility)
+                'video/mp4;codecs=avc1.4d401f,mp4a.40.2', // Universal H.264 MP4 (Fallback)
+            ];
+
+            let selectedMime = '';
+            for ( const mime of mimeTypes ) {
+                if (MediaRecorder.isTypeSupported(mime)) {
+                    selectedMime = mime;
+                    break;
+                }
+            }
+
+            const options = selectedMime ? { 
+                mimeType: selectedMime, 
+                audioBitsPerSecond: 128000, 
+                videoBitsPerSecond: 5000000, 
+            } : 
+            { 
+                audioBitsPerSecond: 128000, 
+                videoBitsPerSecond: 5000000, 
+            };
+            const mediaRecorder = new MediaRecorder(stream, options);
+            setmediaRecorder(mediaRecorder);
+            
+            console.log(`Recording started using: ${selectedMime || 'Browser Default'}`);
+        }
+        configureRecording();
+    }, [audioDeviceId, videoDeviceId]);
 
     return (
         <button
