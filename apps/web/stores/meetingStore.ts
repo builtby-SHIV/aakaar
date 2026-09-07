@@ -1,5 +1,5 @@
 import { createStore } from "zustand";
-import type { meetingState, meetingStore } from "../../lib/types";
+import type { meetingState, meetingStore } from "../lib/types";
 
 export const defaultInitState: meetingState = {
   token: "",

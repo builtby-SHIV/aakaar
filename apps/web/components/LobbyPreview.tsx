@@ -28,7 +28,6 @@ export function LobbyPreview({
     const [audio, setAudio] = useState(defaults?.audioEnabled ?? true);
     const [audioLevel, setAudioLevel] = useState<number>(0);
 
-    // Device selection state (ready for you to populate)
     const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
     const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
     const [selectedVideoId, setSelectedVideoId] = useState<string>(defaults?.videoDeviceId ?? "");
@@ -101,9 +100,7 @@ export function LobbyPreview({
         async function initVideo() {
             try {
                 const constraints: MediaStreamConstraints = {
-                    video: selectedVideoId
-                        ? { deviceId: { exact: selectedVideoId } }
-                        : true,
+                    video: selectedVideoId ? { deviceId: { exact: selectedVideoId } } : true,
                 };
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
