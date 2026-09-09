@@ -15,6 +15,7 @@ export interface meetingState {
     videoDeviceId: string;
     audioDeviceId: string;
     participantName: string;
+    projectName: string;
 
     audioEnabled: boolean;
     videoEnabled: boolean;
@@ -23,6 +24,7 @@ export interface meetingState {
 export interface meetingActions {
     setToken: (token: string) => void;
     setRoomName: (roomName: string) => void;
+    setProjectName: (projectName: string) => void;
     setServerUrl: (serverUrl: string) => void;
     setVideoDeviceId: (deviceId: string) => void;
     setAudioDeviceId: (deviceId: string) => void;

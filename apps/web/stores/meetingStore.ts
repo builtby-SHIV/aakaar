@@ -10,6 +10,7 @@ export const defaultInitState: meetingState = {
     videoEnabled: true,
     videoDeviceId: "",
     audioDeviceId: "",
+    projectName: "",
 };
 
 export const createMeetingStore = (initState = defaultInitState) => {
@@ -19,6 +20,7 @@ export const createMeetingStore = (initState = defaultInitState) => {
             setToken: (token) => set({ token }),
             setServerUrl: (serverUrl) => set({ serverUrl }),
             setRoomName: (roomName) => set({ roomName }),
+            setProjectName: (projectName) => set({ projectName }),
             setParticipantName: (participantName) => set({ participantName }),
             setMediaPreferences: (audioEnabled, videoEnabled) => set({ audioEnabled, videoEnabled }),
             reset: () => set(defaultInitState),

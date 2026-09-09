@@ -1,10 +1,10 @@
 import { AccessToken } from "livekit-server-sdk";
 import { z } from "zod";
 import { ENV } from "../../lib/env";
-import { baseProcedure, createTRPCRouter } from "../init";
+import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const meetingRouter = createTRPCRouter({
-    getToken: baseProcedure
+    getToken: protectedProcedure
         .input(
             z.object({
                 roomName: z.string().min(1).nonoptional(),
