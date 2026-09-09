@@ -4,6 +4,8 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { s3 } from "../../lib/s3_config";
 import { db } from "@repo/database";
+import { projects } from "@repo/database/schema";
+import { and, eq } from "drizzle-orm";
 
 export const recordingRouter = createTRPCRouter({
     getUploadUrl: protectedProcedure
@@ -21,16 +23,13 @@ export const recordingRouter = createTRPCRouter({
                 //error logic
             }
 
-            const project = await db.query.projects.findFirst({
-                where: (projects, { eq, and }) =>
-                    and(
-                        eq(projects.name, input.projectName),
-                        eq(projects.userId, userId!)
-                    ),
-                columns: {
-                    id: true
-                }
-            });
+            const project = await db
+                .select({ id: projects.id })
+                .from(projects)
+                .where(and(
+                    eq(projects.name, input.projectName),
+                    eq(projects.userId, input.userId)
+                ));
 
             if (project === undefined) {
                 //error logic here
@@ -40,7 +39,7 @@ export const recordingRouter = createTRPCRouter({
                 s3,
                 new PutObjectCommand({
                     Bucket: "aakaar",
-                    Key: `users/${userId}/projects/${project?.id}/chunks/${input.chunkIndex}.webm`,
+                    Key: `users/${userId}/projects/${project[0]?.id}/chunks/${input.chunkIndex}.webm`,
                     ContentType: input.mimeType,
                 }),
                 { expiresIn: 3000 },
