@@ -80,7 +80,7 @@ export function VideoMeetRoomView() {
                     <span>Leave</span>
                 </button>
 
-                <div className="h-3 w-px bg-[#2E3033]" />
+                <div className="h-3 w-px bg-border" />
 
                 <div className="flex items-center gap-2">
                     <span className="font-medium text-xs text-white">

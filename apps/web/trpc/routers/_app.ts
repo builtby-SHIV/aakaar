@@ -1,8 +1,10 @@
+import { recordingRouter } from './recording';
 import { createTRPCRouter } from '../init';
 import { meetingRouter } from './meeting';
 
 export const appRouter = createTRPCRouter({
-    meeting: meetingRouter
+    meeting: meetingRouter,
+    recording: recordingRouter
 });
 
 // export type definition of API

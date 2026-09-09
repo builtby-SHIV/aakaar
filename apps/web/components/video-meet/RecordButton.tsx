@@ -25,11 +25,12 @@ export function RecordButton({ onStart, onStop, className = "" }: RecordButtonPr
 
         if (mediaRecorder) {
             mediaRecorder.start(120000);
-            mediaRecorder.ondataavailable = (e: BlobEvent) => {
+            mediaRecorder.ondataavailable = async (e: BlobEvent) => {
                 if (e.data.size <= 0)
                     return;
                 chunkIndex++;
             // send chunk to R2
+                
             }
         }
     }, [mediaRecorder]);

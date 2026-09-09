@@ -1,4 +1,5 @@
-import { initTRPC } from '@trpc/server';
+import { initTRPC, TRPCError } from '@trpc/server';
+import { auth } from '../app/auth';
  
 /**
  * This context creator accepts `headers` so it can be reused in both
@@ -6,8 +7,11 @@ import { initTRPC } from '@trpc/server';
  * API route handler (where you pass the request headers).
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  // const user = await auth(opts.headers);
-    return { userId: 'user_123' };
+    const session = await auth(); // reads the session from cookies server-side
+    return {
+        session,
+        headers: opts.headers,
+    };
 };
  
 // Avoid exporting the entire t-object
@@ -22,7 +26,17 @@ const t = initTRPC
      */
     // transformer: superjson,
     });
- 
+
+export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
+    if (!ctx.session?.user?.id)
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+    return next({
+        ctx: {
+            ...ctx,
+            session: { ...ctx.session, user: ctx.session.user }, // now userId is guaranteed non-null downstream
+        },
+    });
+});
 // Base router and procedure helpers
 export const createTRPCRouter = t.router;
 export const createCallerFactory = t.createCallerFactory;
