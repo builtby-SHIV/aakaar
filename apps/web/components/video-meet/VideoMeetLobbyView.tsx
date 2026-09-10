@@ -7,6 +7,7 @@ import { useShallow } from "zustand/react/shallow";
 import { LobbyPreview, type UserMediaChoices } from "../LobbyPreview";
 import { useMeetingStore } from "../../providers/meetingStoreProvider";
 import { useTRPC } from "../../trpc/client";
+import { handleTRPCError } from "../../lib/handle-error";
 
 export function VideoMeetLobbyView() {
     const router = useRouter();
@@ -55,11 +56,9 @@ export function VideoMeetLobbyView() {
                 router.push(`/video-meet/${encodeURIComponent(effectiveRoom)}`);
             },
             onError: (error: any) => {
-                console.error("Token acquisition failed:", error);
-                setErrorMessage(
-                    error.message ||
-                        "Unable to acquire LiveKit token. Make sure the http-server is running on port 3001.",
-                );
+                const parsed = handleTRPCError(error);
+                console.error("Token acquisition failed:", parsed);
+                setErrorMessage(parsed.message);
             },
         }),
     );

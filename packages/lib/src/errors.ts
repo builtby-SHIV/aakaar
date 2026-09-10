@@ -1,31 +1,31 @@
-/**
- * Global error classes for the entire application.
- * These are thrown inside tRPC routers, database wrappers,
- * and any server-side code — then mapped to tRPC errors via the error handler.
- */
-
-// ─── Base ────────────────────────────────────────────────────────────────────
-
 export type AppErrorCode =
     | "AUTH_ERROR"
     | "FORBIDDEN"
     | "NOT_FOUND"
     | "VALIDATION_ERROR"
+    | "BAD_REQUEST"
     | "CONFLICT"
     | "DATABASE_ERROR"
     | "RATE_LIMIT"
     | "EXTERNAL_SERVICE_ERROR"
+    | "SERVICE_UNAVAILABLE"
+    | "TIMEOUT"
     | "INTERNAL_ERROR";
 
 export class AppError extends Error {
+    public readonly isAppError: true = true;
     public readonly code: AppErrorCode;
     public readonly statusCode: number;
+    public readonly isOperational: boolean;
+    public readonly clientMessage?: string;
     public readonly details?: Record<string, unknown>;
 
     constructor(opts: {
         code: AppErrorCode;
         message: string;
         statusCode: number;
+        clientMessage?: string;
+        isOperational?: boolean;
         cause?: unknown;
         details?: Record<string, unknown>;
     }) {
@@ -33,166 +33,233 @@ export class AppError extends Error {
         this.name = this.constructor.name;
         this.code = opts.code;
         this.statusCode = opts.statusCode;
+        this.clientMessage = opts.clientMessage;
+        this.isOperational = opts.isOperational ?? true;
         this.details = opts.details;
+
+        Object.setPrototypeOf(this, new.target.prototype);
+    }
+
+    public getSafeClientMessage(): string {
+        return this.clientMessage ?? this.message;
     }
 }
 
-// ─── Auth ────────────────────────────────────────────────────────────────────
-
-/** Thrown when a user is not authenticated (401). */
 export class AuthError extends AppError {
     constructor(
         message = "You must be logged in to perform this action",
-        opts?: { cause?: unknown; details?: Record<string, unknown> },
+        opts?: { cause?: unknown; details?: Record<string, unknown>; clientMessage?: string },
     ) {
         super({
             code: "AUTH_ERROR",
             message,
             statusCode: 401,
+            clientMessage: opts?.clientMessage ?? message,
             cause: opts?.cause,
             details: opts?.details,
         });
     }
 }
 
-/** Thrown when a user lacks permission (403). */
 export class ForbiddenError extends AppError {
     constructor(
         message = "You do not have permission to perform this action",
-        opts?: { cause?: unknown; details?: Record<string, unknown> },
+        opts?: { cause?: unknown; details?: Record<string, unknown>; clientMessage?: string },
     ) {
         super({
             code: "FORBIDDEN",
             message,
             statusCode: 403,
+            clientMessage: opts?.clientMessage ?? message,
             cause: opts?.cause,
             details: opts?.details,
         });
     }
 }
 
-// ─── Resource ────────────────────────────────────────────────────────────────
-
-/** Thrown when a requested resource does not exist (404). */
 export class NotFoundError extends AppError {
     constructor(
         resource = "Resource",
-        opts?: { cause?: unknown; details?: Record<string, unknown> },
+        opts?: { cause?: unknown; details?: Record<string, unknown>; clientMessage?: string },
     ) {
+        const msg = `${resource} not found`;
         super({
             code: "NOT_FOUND",
-            message: `${resource} not found`,
+            message: msg,
             statusCode: 404,
+            clientMessage: opts?.clientMessage ?? msg,
             cause: opts?.cause,
             details: opts?.details,
         });
     }
 }
 
-// ─── Validation ──────────────────────────────────────────────────────────────
-
-/** Thrown for input or business-rule validation failures (400). */
 export class ValidationError extends AppError {
     constructor(
         message = "Validation failed",
-        opts?: { cause?: unknown; details?: Record<string, unknown> },
+        opts?: { cause?: unknown; details?: Record<string, unknown>; clientMessage?: string },
     ) {
         super({
             code: "VALIDATION_ERROR",
             message,
             statusCode: 400,
+            clientMessage: opts?.clientMessage ?? message,
             cause: opts?.cause,
             details: opts?.details,
         });
     }
 }
 
-// ─── Conflict ────────────────────────────────────────────────────────────────
+export class BadRequestError extends AppError {
+    constructor(
+        message = "Bad request",
+        opts?: { cause?: unknown; details?: Record<string, unknown>; clientMessage?: string },
+    ) {
+        super({
+            code: "BAD_REQUEST",
+            message,
+            statusCode: 400,
+            clientMessage: opts?.clientMessage ?? message,
+            cause: opts?.cause,
+            details: opts?.details,
+        });
+    }
+}
 
-/** Thrown for duplicate / unique-constraint violations (409). */
 export class ConflictError extends AppError {
     constructor(
         resource = "Resource",
-        opts?: { cause?: unknown; details?: Record<string, unknown> },
+        opts?: { cause?: unknown; details?: Record<string, unknown>; clientMessage?: string },
     ) {
+        const msg = resource.includes(" ") ? resource : `${resource} already exists`;
         super({
             code: "CONFLICT",
-            message: `${resource} already exists`,
+            message: msg,
             statusCode: 409,
+            clientMessage: opts?.clientMessage ?? msg,
             cause: opts?.cause,
             details: opts?.details,
         });
     }
 }
 
-// ─── Database ────────────────────────────────────────────────────────────────
-
-/** Wraps Drizzle / Neon failures that aren't covered by a more specific class (500). */
 export class DatabaseError extends AppError {
+    public static readonly NON_SPECIFIC_MESSAGE = "A database error occurred. Please try again later.";
+
     constructor(
-        message = "A database error occurred",
-        opts?: { cause?: unknown; details?: Record<string, unknown> },
+        message = DatabaseError.NON_SPECIFIC_MESSAGE,
+        opts?: {
+            cause?: unknown;
+            details?: Record<string, unknown>;
+            internalMessage?: string;
+        },
     ) {
         super({
             code: "DATABASE_ERROR",
-            message,
+            message: opts?.internalMessage ?? message,
             statusCode: 500,
+            clientMessage: DatabaseError.NON_SPECIFIC_MESSAGE,
             cause: opts?.cause,
             details: opts?.details,
         });
     }
 }
 
-// ─── Rate Limit ──────────────────────────────────────────────────────────────
-
-/** Thrown when a client exceeds the allowed request rate (429). */
 export class RateLimitError extends AppError {
     constructor(
         message = "Too many requests, please try again later",
-        opts?: { cause?: unknown; details?: Record<string, unknown> },
+        opts?: { cause?: unknown; details?: Record<string, unknown>; clientMessage?: string },
     ) {
         super({
             code: "RATE_LIMIT",
             message,
             statusCode: 429,
+            clientMessage: opts?.clientMessage ?? message,
             cause: opts?.cause,
             details: opts?.details,
         });
     }
 }
 
-// ─── External Service ────────────────────────────────────────────────────────
-
-/** Thrown when a third-party service (LiveKit, S3, etc.) fails (502). */
 export class ExternalServiceError extends AppError {
     constructor(
         service: string,
-        opts?: { cause?: unknown; details?: Record<string, unknown> },
+        opts?: { cause?: unknown; details?: Record<string, unknown>; clientMessage?: string },
     ) {
+        const msg = `External service failure: ${service}`;
         super({
             code: "EXTERNAL_SERVICE_ERROR",
-            message: `External service failure: ${service}`,
+            message: msg,
             statusCode: 502,
+            clientMessage: opts?.clientMessage ?? "An external service error occurred. Please try again later.",
             cause: opts?.cause,
             details: opts?.details,
         });
     }
 }
 
-// ─── Internal ────────────────────────────────────────────────────────────────
-
-/** Catch-all for unexpected / unclassified errors (500). */
-export class InternalError extends AppError {
+export class ServiceUnavailableError extends AppError {
     constructor(
-        message = "An unexpected error occurred",
-        opts?: { cause?: unknown; details?: Record<string, unknown> },
+        service = "Service",
+        opts?: { cause?: unknown; details?: Record<string, unknown>; clientMessage?: string },
     ) {
+        const msg = `${service} is temporarily unavailable`;
         super({
-            code: "INTERNAL_ERROR",
-            message,
-            statusCode: 500,
+            code: "SERVICE_UNAVAILABLE",
+            message: msg,
+            statusCode: 503,
+            clientMessage: opts?.clientMessage ?? "The service is temporarily unavailable. Please try again later.",
             cause: opts?.cause,
             details: opts?.details,
         });
     }
+}
+
+export class TimeoutError extends AppError {
+    constructor(
+        operation = "Operation",
+        opts?: { cause?: unknown; details?: Record<string, unknown>; clientMessage?: string },
+    ) {
+        const msg = `${operation} timed out`;
+        super({
+            code: "TIMEOUT",
+            message: msg,
+            statusCode: 504,
+            clientMessage: opts?.clientMessage ?? "The request timed out. Please try again.",
+            cause: opts?.cause,
+            details: opts?.details,
+        });
+    }
+}
+
+export class InternalError extends AppError {
+    public static readonly NON_SPECIFIC_MESSAGE = "An unexpected error occurred. Please try again later.";
+
+    constructor(
+        message = InternalError.NON_SPECIFIC_MESSAGE,
+        opts?: {
+            cause?: unknown;
+            details?: Record<string, unknown>;
+            internalMessage?: string;
+        },
+    ) {
+        super({
+            code: "INTERNAL_ERROR",
+            message: opts?.internalMessage ?? message,
+            statusCode: 500,
+            clientMessage: InternalError.NON_SPECIFIC_MESSAGE,
+            cause: opts?.cause,
+            details: opts?.details,
+            isOperational: false,
+        });
+    }
+}
+
+export function isAppError(error: unknown): error is AppError {
+    return (
+        error instanceof AppError ||
+        (typeof error === "object" &&
+            error !== null &&
+            (error as { isAppError?: boolean }).isAppError === true)
+    );
 }

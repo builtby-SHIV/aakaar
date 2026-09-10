@@ -7,6 +7,7 @@ import {
 import { ClientStoreProvider } from "../providers/clientStoreProvider";
 import { MeetingStoreProvider } from "../providers/meetingStoreProvider";
 import { TRPCReactProvider } from "../trpc/client";
+import { ToastContainer } from "../components/ui/Toast";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 
@@ -63,6 +64,7 @@ export default function RootLayout({
             <ClientStoreProvider>
               <MeetingStoreProvider>
                 {children}
+                <ToastContainer />
               </MeetingStoreProvider>
             </ClientStoreProvider>
           </TRPCReactProvider>

@@ -1,14 +1,13 @@
-/**
- * Database operation wrapper that catches Drizzle / Neon errors
- * and converts them into typed AppError subclasses.
- *
- * Usage:
- *   const rows = await withDb(() => db.select().from(users));
- */
-import { ConflictError, DatabaseError, NotFoundError } from "./errors";
+import {
+    ConflictError,
+    DatabaseError,
+    NotFoundError,
+    ValidationError,
+    type AppError,
+} from "./errors";
 
 /**
- * Wraps a database operation and translates low-level SQL errors
+ * Wraps any database operation and translates low-level SQL errors
  * into application-level error classes.
  */
 export async function withDb<T>(fn: () => Promise<T>): Promise<T> {
@@ -19,67 +18,78 @@ export async function withDb<T>(fn: () => Promise<T>): Promise<T> {
     }
 }
 
-/**
- * Maps a raw database error to the appropriate AppError subclass
- * based on PostgreSQL error codes.
- *
- * @see https://www.postgresql.org/docs/current/errcodes-appendix.html
- */
-function mapDatabaseError(error: unknown): DatabaseError | ConflictError | NotFoundError {
-    // Neon / node-postgres surfaces `code` on the error object
-    const pgCode = (error as { code?: string })?.code;
+export function mapDatabaseError(error: unknown): AppError {
+    // If it's already an AppError, re-throw as is
+    if (error && typeof error === "object" && "code" in error && "statusCode" in error)
+        return error as AppError;
 
-    // 23505 — unique_violation
+    const rawError = error as {
+        code?: string;
+        message?: string;
+        detail?: string;
+        constraint?: string;
+        table?: string;
+    } | null | undefined;
+
+    const pgCode = rawError?.code;
+    const internalMessage = rawError?.message || "Unknown database error";
+
     if (pgCode === "23505") {
-        return new ConflictError("Resource", {
+        return new ConflictError("A record with these details already exists", {
             cause: error,
-            details: { pgCode },
+            details: { pgCode, constraint: rawError?.constraint },
         });
     }
 
-    // 23503 — foreign_key_violation (referenced row missing)
     if (pgCode === "23503") {
         return new NotFoundError("Referenced resource", {
             cause: error,
-            details: { pgCode },
+            details: { pgCode, constraint: rawError?.constraint },
         });
     }
 
-    // 23502 — not_null_violation
     if (pgCode === "23502") {
-        return new DatabaseError("A required field was missing", {
+        return new ValidationError("A required database field was missing", {
             cause: error,
-            details: { pgCode },
+            details: { pgCode, table: rawError?.table },
         });
     }
 
-    // 23514 — check_violation
     if (pgCode === "23514") {
-        return new DatabaseError("A database constraint check failed", {
+        return new ValidationError("A database constraint check failed", {
             cause: error,
-            details: { pgCode },
+            details: { pgCode, constraint: rawError?.constraint },
         });
     }
 
-    // 08xxx — connection exceptions
     if (pgCode?.startsWith("08")) {
-        return new DatabaseError("Database connection failed", {
+        return new DatabaseError(DatabaseError.NON_SPECIFIC_MESSAGE, {
             cause: error,
+            internalMessage: `Database connection error (${pgCode}): ${internalMessage}`,
             details: { pgCode },
         });
     }
 
-    // 57xxx — operator intervention (e.g., statement_timeout)
     if (pgCode?.startsWith("57")) {
-        return new DatabaseError("Database operation timed out or was cancelled", {
+        return new DatabaseError("Database operation timed out. Please try again.", {
             cause: error,
+            internalMessage: `Database query timed out (${pgCode}): ${internalMessage}`,
             details: { pgCode },
         });
     }
 
-    // Fallback
-    const message =
-        error instanceof Error ? error.message : "An unknown database error occurred";
+    return new DatabaseError(DatabaseError.NON_SPECIFIC_MESSAGE, {
+        cause: error,
+        internalMessage,
+        details: { pgCode },
+    });
+}
 
-    return new DatabaseError(message, { cause: error });
+export function isDatabaseError(error: unknown): boolean {
+    if (!error || typeof error !== "object") return false;
+    const err = error as { code?: string; routine?: string; severity?: string };
+    return (
+        typeof err.code === "string" &&
+        (err.code.length === 5 || err.severity !== undefined || err.routine !== undefined)
+    );
 }
