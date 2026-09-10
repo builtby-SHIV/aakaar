@@ -4,7 +4,8 @@ import { useMeetingStore } from "../../providers/meetingStoreProvider";
 import { useShallow } from "zustand/react/shallow";
 import { useTRPC } from "../../trpc/client";
 import { useMutation } from "@tanstack/react-query";
-import { AuthError, ExternalServiceError } from "@repo/lib/errors";
+import { ExternalServiceError } from "@repo/lib/errors";
+import { openDB, type IDBPDatabase } from "idb";
 import { useSession } from "next-auth/react";
 
 export interface RecordButtonProps {
@@ -18,6 +19,7 @@ export function RecordButton({ onStart, onStop }: RecordButtonProps) {
     const [isRecording, setIsRecording] = useState(false);
     const [mediaRecorder, setmediaRecorder] = useState<MediaRecorder | null>(null);
     const chunkIndex = useRef<number>(0);
+    const idb = useRef<IDBPDatabase | null>(null);
 
     const { audioDeviceId, videoDeviceId, projectName } = useMeetingStore(useShallow((state) => ({ 
         audioDeviceId: state.audioDeviceId, 
@@ -69,8 +71,14 @@ export function RecordButton({ onStart, onStop }: RecordButtonProps) {
         }
         catch(err) {
             if (retriesLeft > 0)
-            return retryUpload(e, chunkIndex, retriesLeft - 1);
+                return retryUpload(e, chunkIndex, retriesLeft - 1);
+            addChunkToIndexedDB(e, chunkIndex);
         }
+    }
+
+    const addChunkToIndexedDB = async (e: BlobEvent, chunkIndex: number) => {
+        if (idb.current)
+            await idb.current.put("LeftOverChunks", e, chunkIndex);
     }
         
     const startRecording = useCallback(() => {
@@ -130,6 +138,20 @@ export function RecordButton({ onStart, onStop }: RecordButtonProps) {
             // Add stop recording logic here
         }
     };
+
+    useEffect(() => {
+        const initDB = async () => {
+        const db = await openDB("ChunksStore", 1, {
+            upgrade(db) {
+            if (!db.objectStoreNames.contains("LeftOverChunks")) 
+                db.createObjectStore("LeftOverChunks");
+            },
+        })
+        idb.current = db;
+    };
+
+        initDB();
+    }, []);
 
     useEffect(() => {
         async function configureRecording() {
