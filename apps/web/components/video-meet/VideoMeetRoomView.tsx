@@ -11,6 +11,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useMeetingStore } from "../../providers/meetingStoreProvider";
 import { RecordButton } from "./RecordButton";
+import { withDb } from "@repo/lib/safe-db";
 
 export function VideoMeetRoomView() {
     const router = useRouter();
@@ -39,6 +40,11 @@ export function VideoMeetRoomView() {
     const activeRoom = roomName || roomNameParam || "studio-live";
     const effectiveServerUrl =
         serverUrl || process.env.NEXT_PUBLIC_LIVEKIT_URL || "";
+
+    //TODO: GET PROJECT and SEND ID TO RECORDBUTTON
+    // const project = await withDb(() => {
+    //     db.
+    // })
 
     useEffect(() => {
         if (!token || !effectiveServerUrl) {

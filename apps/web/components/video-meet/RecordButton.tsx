@@ -7,19 +7,23 @@ import { useMutation } from "@tanstack/react-query";
 import { ExternalServiceError } from "@repo/lib/errors";
 import { openDB, type IDBPDatabase } from "idb";
 import { useSession } from "next-auth/react";
+import { db, videoChunks, videos } from "@repo/database";
+import { withDb } from "@repo/lib/safe-db";
 
 export interface RecordButtonProps {
     onStart?: () => void;
     onStop?: () => void;
+    projectId: number;
 }
 
-export function RecordButton({ onStart, onStop }: RecordButtonProps) {
+export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) {
     const trpc = useTRPC();
     const { data: session } = useSession();
     const [isRecording, setIsRecording] = useState(false);
     const [mediaRecorder, setmediaRecorder] = useState<MediaRecorder | null>(null);
     const chunkIndex = useRef<number>(0);
     const idb = useRef<IDBPDatabase | null>(null);
+    const project = useRef<{ id: number; }[] | null>(null);
 
     const { audioDeviceId, videoDeviceId, projectName } = useMeetingStore(useShallow((state) => ({ 
         audioDeviceId: state.audioDeviceId, 
@@ -51,7 +55,7 @@ export function RecordButton({ onStart, onStop }: RecordButtonProps) {
         }
     }, [projectName, session?.user?.id, uploadUrl]);
 
-    const retryUpload = async (e: BlobEvent, chunkIndex: number, retriesLeft = 5) => {
+    const retryUpload = useCallback(async (e: BlobEvent, chunkIndex: number, retriesLeft = 5) => {
         const url = await getUploadUrl(e, chunkIndex);
         if (!url)
             throw new ExternalServiceError("Cloudflare", {
@@ -74,12 +78,28 @@ export function RecordButton({ onStart, onStop }: RecordButtonProps) {
                 return retryUpload(e, chunkIndex, retriesLeft - 1);
             addChunkToIndexedDB(e, chunkIndex);
         }
-    }
+    }, [getUploadUrl]);
 
     const addChunkToIndexedDB = async (e: BlobEvent, chunkIndex: number) => {
         if (idb.current)
             await idb.current.put("LeftOverChunks", e, chunkIndex);
     }
+
+    const setStatusToRecording = useCallback(async () => {
+        const project = await withDb(() =>
+                db
+                .insert(videos)
+                .values({
+                    name: `${session?.user?.name}/${projectName}`,
+                    projectId: projectId,
+                    status: "recording", 
+                    expectedChunks: 0,
+                    })
+                .returning({ id: videos.id })
+            );
+
+        return project;
+    }, [projectId, projectName, session?.user?.name]);
         
     const startRecording = useCallback(() => {
         if (mediaRecorder) {
@@ -90,34 +110,51 @@ export function RecordButton({ onStart, onStop }: RecordButtonProps) {
 
                 chunkIndex.current++;
 
-                const url = await getUploadUrl(e, chunkIndex.current);
-                if (!url)
+                const data = await getUploadUrl(e, chunkIndex.current);
+                if (!data)
                     throw new ExternalServiceError("Cloudflare", {
                             clientMessage: "Recording cannot be done. Please try again later"
                         });
 
                 try {
-                    const res = await fetch(url.uploadUrl, { 
+                    const res = await fetch(data.uploadUrl, { 
                         method: 'PUT', 
                         body: e.data, 
                         headers: { 
                             'Content-Length': e.data.size.toString() 
                     }});
 
-                    if (!res.ok)
+                    if (!res.ok || res.status === 400 || res.status === 403)
                     {
-                        console.error("Failure during upload process of chunk", e.data, chunkIndex);
+                        console.error("Failure during upload process of chunk. Retrying the process", e.data, chunkIndex);
                         retryUpload(e, chunkIndex.current);
                     }
+
+                    if (project.current === null)
+                        throw new ExternalServiceError("PgSQL", {
+                            clientMessage: "Recording cannot be done. Please try again later"
+                        })
+
+                    await withDb(() =>
+                        db
+                        .insert(videoChunks)
+                        .values({
+                            videoId: project.current![0]!.id,
+                            chunkIndex: chunkIndex.current,
+                            r2Key: data.r2Key,
+                            byteSize: e.data.size
+                        })
+                    )
                 }
                 catch(e) {
+                    console.error(e)
                     throw new ExternalServiceError("Cloudflare", {
-                                clientMessage: "Recording cannot be done. Please try again later"
-                        });
+                        clientMessage: "Recording cannot be done. Please try again later"
+                    });
                 }
             }
         }
-    }, [mediaRecorder, getUploadUrl]);
+    }, [mediaRecorder, getUploadUrl, retryUpload]);
 
     const handleToggleRecording = async () => {
         if (!isRecording) {
@@ -189,9 +226,12 @@ export function RecordButton({ onStart, onStop }: RecordButtonProps) {
             setmediaRecorder(mediaRecorder);
             
             console.log(`Recording started using: ${selectedMime || 'Browser Default'}`);
+
+            project.current = await setStatusToRecording();
         }
         configureRecording();
-    }, [audioDeviceId, videoDeviceId]);
+
+    }, [audioDeviceId, projectId, projectName, session?.user?.name, setStatusToRecording, videoDeviceId]);
 
     return (
         <button

@@ -55,7 +55,10 @@ export const recordingRouter = createTRPCRouter({
                     { expiresIn: 3000 },
                 );
 
-                return { uploadUrl: putUrl };
+                return { 
+                    uploadUrl: putUrl,
+                    r2Key: `users/${sessionUserId}/projects/${project[0]?.id}/chunks/${input.chunkIndex}.webm`
+                };
             } catch (error) {
                 throw new ExternalServiceError("Storage Service", {
                     cause: error,
