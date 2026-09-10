@@ -1,9 +1,11 @@
-"use client";
-
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Circle, Square } from "lucide-react";
 import { useMeetingStore } from "../../providers/meetingStoreProvider";
 import { useShallow } from "zustand/react/shallow";
+import { useTRPC } from "../../trpc/client";
+import { useMutation } from "@tanstack/react-query";
+import { AuthError } from "@repo/lib/errors";
+import { useSession } from "next-auth/react";
 
 export interface RecordButtonProps {
     onStart?: () => void;
@@ -15,25 +17,44 @@ export function RecordButton({ onStart, onStop, className = "" }: RecordButtonPr
     const [isRecording, setIsRecording] = useState(false);
     const [mediaRecorder, setmediaRecorder] = useState<MediaRecorder | null>(null);
 
-    const { audioDeviceId, videoDeviceId } = useMeetingStore(useShallow((state) => ({ 
+    const { audioDeviceId, videoDeviceId, projectName } = useMeetingStore(useShallow((state) => ({ 
         audioDeviceId: state.audioDeviceId, 
-        videoDeviceId: state.videoDeviceId
+        videoDeviceId: state.videoDeviceId,
+        projectName: state.projectName
     })));
 
-    const startRecording = useCallback(async () => {
-        let chunkIndex = 0;
+    const trpc = useTRPC();
+    const { data: session } = useSession();
 
-        if (mediaRecorder) {
-            mediaRecorder.start(120000);
-            mediaRecorder.ondataavailable = async (e: BlobEvent) => {
-                if (e.data.size <= 0)
-                    return;
-                chunkIndex++;
-            // send chunk to R2
-                
+    const uploadUrl = useMutation(
+        trpc
+        .recording
+        .getUploadUrl
+        .mutationOptions({
+            onSuccess: () => {
+            }
+        }));
+        
+        const startRecording = useCallback(() => {
+            let chunkIndex = 0;
+            
+            if (mediaRecorder) {
+                mediaRecorder.start(120000);
+                mediaRecorder.ondataavailable = async (e: BlobEvent) => {
+                    if (e.data.size <= 0)
+                        return;
+
+                    chunkIndex++;
+                    const url = await uploadUrl.mutateAsync({
+                        userId: session?.user?.id || "",
+                        projectName,
+                        chunkIndex,
+                        mimeType: e.data.type
+                    });
+                await fetch(url.uploadUrl, { method: 'PUT', body: e.data });
             }
         }
-    }, [mediaRecorder]);
+    }, [mediaRecorder, session?.user?.id, projectName, uploadUrl]);
 
     const handleToggleRecording = async () => {
         if (!isRecording) {
@@ -102,7 +123,7 @@ export function RecordButton({ onStart, onStop, className = "" }: RecordButtonPr
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                 isRecording
                     ? "bg-red-950/60 text-red-200 hover:bg-red-900/60 border border-red-500/30"
-                    : "bg-[#242628] text-[#F2F1ED] hover:bg-[#2E3033] border border-[#38393C]"
+                    : "bg-surface-hover text-foreground hover:bg-border border border-border-strong"
             } ${className}`}
         >
             {isRecording ? (

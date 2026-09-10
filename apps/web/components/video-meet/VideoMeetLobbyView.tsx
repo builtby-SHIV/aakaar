@@ -32,16 +32,14 @@ export function VideoMeetLobbyView() {
 
     // If user accesses /video-meet/lobby without a room name, reroute to /video-meet
     useEffect(() => {
-        if (!effectiveRoom) {
+        if (!effectiveRoom)
             router.replace("/video-meet");
-        }
     }, [effectiveRoom, router]);
 
     // Keep store in sync with room query parameter
     useEffect(() => {
-        if (!roomName && roomFromQuery) {
+        if (!roomName && roomFromQuery)
             setRoomName(roomFromQuery);
-        }
     }, [roomName, roomFromQuery, setRoomName]);
 
     const getToken = useMutation(

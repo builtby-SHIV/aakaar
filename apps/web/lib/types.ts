@@ -1,9 +1,9 @@
 export interface clientState {
-    roomName: string
+    sessionId: string
 };
 
 export interface clientActions {
-    setRoomName: (roomName: string) => void;
+    setSessionId: (sessionId: string) => void;
 };
 
 export type clientStore = clientState & { actions: clientActions };
