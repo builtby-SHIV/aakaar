@@ -67,9 +67,9 @@ export function VideoMeetRoomView() {
     if (!token || !effectiveServerUrl) return null;
 
     return (
-        <div className="h-screen w-screen bg-[#131415] text-[#F2F1ED] flex flex-col justify-between overflow-hidden select-none">
+        <div className="h-screen w-screen bg-background text-foreground flex flex-col justify-between overflow-hidden select-none">
         {/* Top Minimal Chrome Bar */}
-        <header className="h-12 px-6 border-b border-[#2E3033] bg-[#1A1B1D] flex items-center justify-between z-30 shrink-0">
+        <header className="h-12 px-6 border-b border-border bg-surface flex items-center justify-between z-30 shrink-0">
             <div className="flex items-center gap-3">
                 <button
                     type="button"
@@ -96,13 +96,12 @@ export function VideoMeetRoomView() {
             <div className="flex items-center gap-2">
                 <RecordButton 
                     onStart={() => setIsInfoDialogOpen(true)}
-                    
                 />
 
                 <button
                     type="button"
                     onClick={() => setIsInfoDialogOpen(true)}
-                    className="p-1.5 rounded-lg text-muted hover:text-white hover:bg-[#242628] transition-colors cursor-pointer"
+                    className="p-1.5 rounded-lg text-muted hover:text-white hover:bg-surface-hover transition-colors cursor-pointer"
                     title="Recording Information"
                     aria-label="Recording Information"
                 >
@@ -135,11 +134,11 @@ export function VideoMeetRoomView() {
                 onClick={() => setIsInfoDialogOpen(false)}
             >
                 <div
-                    className="relative w-full max-w-md bg-[#1A1B1D] border border-[#2E3033] rounded-xl shadow-2xl p-6 text-[#F2F1ED] space-y-4"
+                    className="relative w-full max-w-md bg-surface border border-border rounded-xl shadow-2xl p-6 text-foreground space-y-4"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
-                    <div className="flex items-center justify-between pb-3 border-b border-[#2E3033]">
+                    <div className="flex items-center justify-between pb-3 border-b border-border">
                         <div className="flex items-center gap-2">
                             <Info className="w-4 h-4 text-emerald-400" />
                             <h2 className="text-sm font-semibold tracking-wide">

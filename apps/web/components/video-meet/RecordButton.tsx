@@ -1,30 +1,29 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Circle, Square } from "lucide-react";
 import { useMeetingStore } from "../../providers/meetingStoreProvider";
 import { useShallow } from "zustand/react/shallow";
 import { useTRPC } from "../../trpc/client";
 import { useMutation } from "@tanstack/react-query";
-import { AuthError } from "@repo/lib/errors";
+import { AuthError, ExternalServiceError } from "@repo/lib/errors";
 import { useSession } from "next-auth/react";
 
 export interface RecordButtonProps {
     onStart?: () => void;
     onStop?: () => void;
-    className?: string;
 }
 
-export function RecordButton({ onStart, onStop, className = "" }: RecordButtonProps) {
+export function RecordButton({ onStart, onStop }: RecordButtonProps) {
+    const trpc = useTRPC();
+    const { data: session } = useSession();
     const [isRecording, setIsRecording] = useState(false);
     const [mediaRecorder, setmediaRecorder] = useState<MediaRecorder | null>(null);
+    const chunkIndex = useRef<number>(0);
 
     const { audioDeviceId, videoDeviceId, projectName } = useMeetingStore(useShallow((state) => ({ 
         audioDeviceId: state.audioDeviceId, 
         videoDeviceId: state.videoDeviceId,
         projectName: state.projectName
     })));
-
-    const trpc = useTRPC();
-    const { data: session } = useSession();
 
     const uploadUrl = useMutation(
         trpc
@@ -33,28 +32,84 @@ export function RecordButton({ onStart, onStop, className = "" }: RecordButtonPr
         .mutationOptions({
             onSuccess: () => {
             }
-        }));
-        
-        const startRecording = useCallback(() => {
-            let chunkIndex = 0;
-            
-            if (mediaRecorder) {
-                mediaRecorder.start(120000);
-                mediaRecorder.ondataavailable = async (e: BlobEvent) => {
-                    if (e.data.size <= 0)
-                        return;
+    }));
+    
+    const getUploadUrl = useCallback(async (e: BlobEvent, chunkIndex: number) => {
+        try {
+            const url = await uploadUrl.mutateAsync({
+                userId: session?.user?.id || "",
+                projectName,
+                chunkIndex,
+                mimeType: e.data.type
+            });
+            return url;
+        }
+        catch(e) {
+            console.error("Upload URL generation failed" + e);
+        }
+    }, [projectName, session?.user?.id, uploadUrl]);
 
-                    chunkIndex++;
-                    const url = await uploadUrl.mutateAsync({
-                        userId: session?.user?.id || "",
-                        projectName,
-                        chunkIndex,
-                        mimeType: e.data.type
-                    });
-                await fetch(url.uploadUrl, { method: 'PUT', body: e.data });
+    const retryUpload = async (e: BlobEvent, chunkIndex: number, retriesLeft = 5) => {
+        const url = await getUploadUrl(e, chunkIndex);
+        if (!url)
+            throw new ExternalServiceError("Cloudflare", {
+                    clientMessage: "Recording cannot be done. Please try again later"
+                });
+
+        try {
+            const res = await fetch(url.uploadUrl, { 
+                method: 'PUT', 
+                body: e.data, 
+                headers: { 
+                    'Content-Length': e.data.size.toString() 
+                }});
+
+            if (!res.ok)
+                console.error("Failure during upload process of chunk", e.data, chunkIndex);
+        }
+        catch(err) {
+            if (retriesLeft > 0)
+            return retryUpload(e, chunkIndex, retriesLeft - 1);
+        }
+    }
+        
+    const startRecording = useCallback(() => {
+        if (mediaRecorder) {
+            mediaRecorder.start(120000);
+            mediaRecorder.ondataavailable = async (e: BlobEvent) => {
+                if (e.data.size <= 0)
+                    return;
+
+                chunkIndex.current++;
+
+                const url = await getUploadUrl(e, chunkIndex.current);
+                if (!url)
+                    throw new ExternalServiceError("Cloudflare", {
+                            clientMessage: "Recording cannot be done. Please try again later"
+                        });
+
+                try {
+                    const res = await fetch(url.uploadUrl, { 
+                        method: 'PUT', 
+                        body: e.data, 
+                        headers: { 
+                            'Content-Length': e.data.size.toString() 
+                    }});
+
+                    if (!res.ok)
+                    {
+                        console.error("Failure during upload process of chunk", e.data, chunkIndex);
+                        retryUpload(e, chunkIndex.current);
+                    }
+                }
+                catch(e) {
+                    throw new ExternalServiceError("Cloudflare", {
+                                clientMessage: "Recording cannot be done. Please try again later"
+                        });
+                }
             }
         }
-    }, [mediaRecorder, session?.user?.id, projectName, uploadUrl]);
+    }, [mediaRecorder, getUploadUrl]);
 
     const handleToggleRecording = async () => {
         if (!isRecording) {
@@ -124,7 +179,7 @@ export function RecordButton({ onStart, onStop, className = "" }: RecordButtonPr
                 isRecording
                     ? "bg-red-950/60 text-red-200 hover:bg-red-900/60 border border-red-500/30"
                     : "bg-surface-hover text-foreground hover:bg-border border border-border-strong"
-            } ${className}`}
+            }`}
         >
             {isRecording ? (
                 <>
