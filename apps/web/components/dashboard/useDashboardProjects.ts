@@ -1,7 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { INITIAL_PROJECTS } from "./constants";
+import { useRouter } from "next/navigation";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useTRPC } from "../../trpc/client";
+import { useMeetingStore } from "../../providers/meetingStoreProvider";
+import { notifyTRPCError } from "../../lib/handle-error";
 import { FilterStatus, Project } from "./types";
 
 interface UseDashboardProjectsOptions {
@@ -9,12 +13,41 @@ interface UseDashboardProjectsOptions {
 }
 
 export function useDashboardProjects(options?: UseDashboardProjectsOptions) {
+  const router = useRouter();
+  const trpc = useTRPC();
+  const { setRoomName, setProjectName } = useMeetingStore((state) => state.actions);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
-  const [projects, setProjects] = useState<Project[]>(
-    options?.initialProjects ?? INITIAL_PROJECTS,
-  );
   const [isCreating, setIsCreating] = useState(false);
+
+  // Fetch both owned projects and participated projects from backend
+  const projectsQuery = useQuery(trpc.project.listAll.queryOptions());
+
+  const projects: Project[] = useMemo(() => {
+    if (projectsQuery.data && projectsQuery.data.length > 0) {
+      return projectsQuery.data;
+    }
+    return options?.initialProjects ?? [];
+  }, [projectsQuery.data, options?.initialProjects]);
+
+  const createProjectMutation = useMutation(
+    trpc.project.create.mutationOptions({
+      onSuccess: (newProject) => {
+        setIsCreating(false);
+        projectsQuery.refetch();
+        if (newProject) {
+          setRoomName(String(newProject.id));
+          setProjectName(newProject.name);
+          // Redirect directly to studio lobby for this project
+          router.push(`/video-meet/lobby?room=${newProject.id}`);
+        }
+      },
+      onError: (err) => {
+        notifyTRPCError(err, "Failed to create project");
+      },
+    })
+  );
 
   const filteredProjects = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -34,25 +67,12 @@ export function useDashboardProjects(options?: UseDashboardProjectsOptions) {
     });
   }, [projects, searchQuery, filterStatus]);
 
-  const handleCreateProject = (title: string) => {
-    const newProject: Project = {
-      id: `ep-${projects.length + 1}`,
-      title,
-      episodeNumber: projects.length + 1,
-      status: "Draft",
-      updatedAt: "Just now",
-      duration: "00:00",
-      participants: ["Alex Rivers"],
-      hasCaptions: false,
-    };
-
-    setProjects((prev) => [newProject, ...prev]);
-    setIsCreating(false);
+  const handleCreateProject = async (title: string) => {
+    await createProjectMutation.mutateAsync({ name: title });
   };
 
   return {
     projects,
-    setProjects,
     filteredProjects,
     searchQuery,
     setSearchQuery,
@@ -61,5 +81,7 @@ export function useDashboardProjects(options?: UseDashboardProjectsOptions) {
     isCreating,
     setIsCreating,
     handleCreateProject,
+    isLoading: projectsQuery.isLoading,
+    isCreatingPending: createProjectMutation.isPending,
   };
 }

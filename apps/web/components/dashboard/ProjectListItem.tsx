@@ -60,7 +60,7 @@ export const ProjectListItem: React.FC<ProjectListItemProps> = ({ project }) => 
           </Link>
 
           <Link
-            href="/video-meet"
+            href={`/video-meet/lobby?room=${project.id}`}
             title="Open Live Studio Room"
             className="p-1.5 rounded hover:bg-[#2E3033] text-[#8B8D90] hover:text-[#F2F1ED] transition-colors"
           >

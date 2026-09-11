@@ -5,13 +5,13 @@ import {
     RoomAudioRenderer,
     VideoConference,
 } from "@livekit/components-react";
-import { ArrowLeft, Info, X } from "lucide-react";
+import { ArrowLeft, Info, Share2, X } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useMeetingStore } from "../../providers/meetingStoreProvider";
 import { RecordButton } from "./RecordButton";
-import { withDb } from "@repo/lib/safe-db";
+import { ShareModal } from "../ShareModal";
 
 export function VideoMeetRoomView() {
     const router = useRouter();
@@ -19,6 +19,7 @@ export function VideoMeetRoomView() {
     const roomNameParam = params?.["room-name"] as string | undefined;
 
     const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
     const {
         token,
@@ -26,6 +27,7 @@ export function VideoMeetRoomView() {
         audioEnabled,
         videoEnabled,
         roomName,
+        projectName,
     } = useMeetingStore(
         useShallow((state) => ({
             token: state.token,
@@ -33,18 +35,15 @@ export function VideoMeetRoomView() {
             audioEnabled: state.audioEnabled,
             videoEnabled: state.videoEnabled,
             roomName: state.roomName,
+            projectName: state.projectName,
         })),
     );
     const { reset } = useMeetingStore((state) => state.actions);
 
     const activeRoom = roomName || roomNameParam || "studio-live";
+    const numericProjectId = Number(activeRoom) || 0;
     const effectiveServerUrl =
         serverUrl || process.env.NEXT_PUBLIC_LIVEKIT_URL || "";
-
-    //TODO: GET PROJECT and SEND ID TO RECORDBUTTON
-    // const project = await withDb(() => {
-    //     db.
-    // })
 
     useEffect(() => {
         if (!token || !effectiveServerUrl) {
@@ -67,7 +66,7 @@ export function VideoMeetRoomView() {
 
     const handleDisconnected = useCallback(() => {
         reset();
-        router.push("/video-meet");
+        router.push("/dashboard");
     }, [reset, router]);
 
     if (!token || !effectiveServerUrl) return null;
@@ -90,7 +89,7 @@ export function VideoMeetRoomView() {
 
                 <div className="flex items-center gap-2">
                     <span className="font-medium text-xs text-white">
-                        {activeRoom}
+                        {projectName ? `${projectName} (#${activeRoom})` : `Room #${activeRoom}`}
                     </span>
                     <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/50 px-1.5 py-0.5 rounded border border-emerald-500/20">
                         LiveKit Connected
@@ -98,9 +97,20 @@ export function VideoMeetRoomView() {
                 </div>
             </div>
 
-            {/* Right: Recording Controls & Info */}
+            {/* Right: Invite, Recording Controls & Info */}
             <div className="flex items-center gap-2">
+                <button
+                    type="button"
+                    onClick={() => setIsShareModalOpen(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#FA5089]/10 text-[#FA5089] hover:bg-[#FA5089]/20 border border-[#FA5089]/30 transition-colors cursor-pointer"
+                    title="Invite guest via shareable link"
+                >
+                    <Share2 className="w-3.5 h-3.5" />
+                    <span>Invite Guest</span>
+                </button>
+
                 <RecordButton 
+                    projectId={numericProjectId}
                     onStart={() => setIsInfoDialogOpen(true)}
                 />
 
@@ -185,6 +195,13 @@ export function VideoMeetRoomView() {
                 </div>
             </div>
         )}
+
+        {/* Share Invite Link Modal */}
+        <ShareModal
+            isOpen={isShareModalOpen}
+            onClose={() => setIsShareModalOpen(false)}
+            roomId={activeRoom}
+        />
         </div>
     );
 }

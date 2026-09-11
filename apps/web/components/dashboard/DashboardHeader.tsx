@@ -46,13 +46,14 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <span>+ Create project shell</span>
         </button>
 
-        <Link
-          href="/video-meet"
-          className="px-4 py-2 border border-[#2E3033] bg-[#1A1B1D] hover:bg-[#242628] text-[#F2F1ED] text-xs font-mono rounded-md transition-all flex items-center gap-2 shadow-sm"
+        <button
+          type="button"
+          onClick={onNewProject}
+          className="px-4 py-2 border border-[#2E3033] bg-[#1A1B1D] hover:bg-[#242628] text-[#F2F1ED] text-xs font-mono rounded-md transition-all flex items-center gap-2 shadow-sm cursor-pointer"
         >
           <div className="w-2 h-2 rounded-full bg-[#EF4444] animate-rec-pulse" />
           <span>Start Recording Studio</span>
-        </Link>
+        </button>
       </div>
     </header>
   );

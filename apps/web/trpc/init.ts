@@ -44,13 +44,20 @@ export const baseProcedure = t.procedure.use(errorHandlingMiddleware);
 
 // Protected procedure verifying user authentication
 export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
-    if (!ctx.session?.user?.id)
+    const user = ctx.session?.user;
+    if (!user?.id)
         throw new AuthError("You must be logged in to perform this action");
 
     return next({
         ctx: {
             ...ctx,
-            session: { ...ctx.session, user: ctx.session.user }, // now userId is guaranteed non-null downstream
+            session: {
+                ...ctx.session,
+                user: {
+                    ...user,
+                    id: user.id as string,
+                },
+            },
         },
     });
 });

@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Circle, Square } from "lucide-react";
 import { useMeetingStore } from "../../providers/meetingStoreProvider";
@@ -35,10 +37,8 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
         trpc
         .recording
         .getUploadUrl
-        .mutationOptions({
-            onSuccess: () => {
-            }
-    }));
+        .mutationOptions()
+    );
     
     const getUploadUrl = useCallback(async (e: BlobEvent, chunkIndex: number) => {
         try {
@@ -82,7 +82,7 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
 
     const addChunkToIndexedDB = async (e: BlobEvent, chunkIndex: number) => {
         if (idb.current)
-            await idb.current.put("LeftOverChunks", e, chunkIndex);
+            await idb.current.put("LeftOverChunks", { e, projectId: project.current }, chunkIndex);
     }
 
     const setStatusToRecording = useCallback(async () => {
@@ -101,16 +101,16 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
         return project;
     }, [projectId, projectName, session?.user?.name]);
         
-    const startRecording = useCallback(() => {
+    const startRecordingAndUploading = useCallback(() => {
         if (mediaRecorder) {
             mediaRecorder.start(120000);
             mediaRecorder.ondataavailable = async (e: BlobEvent) => {
                 if (e.data.size <= 0)
                     return;
 
-                chunkIndex.current++;
+                const currIndex = chunkIndex.current++;
 
-                const data = await getUploadUrl(e, chunkIndex.current);
+                const data = await getUploadUrl(e, currIndex);
                 if (!data)
                     throw new ExternalServiceError("Cloudflare", {
                             clientMessage: "Recording cannot be done. Please try again later"
@@ -124,27 +124,29 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                             'Content-Length': e.data.size.toString() 
                     }});
 
-                    if (!res.ok || res.status === 400 || res.status === 403)
+                    if (res.ok && project.current !== null)
+                        await withDb(() =>
+                            db
+                            .insert(videoChunks)
+                            .values({
+                                videoId: project.current![0]!.id,
+                                chunkIndex: currIndex,
+                                r2Key: data.r2Key,
+                                byteSize: e.data.size
+                            })
+                        )
+
+                    else if (!res.ok || res.status === 400 || res.status === 403)
                     {
-                        console.error("Failure during upload process of chunk. Retrying the process", e.data, chunkIndex);
-                        retryUpload(e, chunkIndex.current);
+                        console.error("Failure during upload process of chunk. Retrying the process", e.data, currIndex);
+                        await retryUpload(e, currIndex);
                     }
 
-                    if (project.current === null)
+                    else if (project.current === null)
                         throw new ExternalServiceError("PgSQL", {
                             clientMessage: "Recording cannot be done. Please try again later"
-                        })
+                        });
 
-                    await withDb(() =>
-                        db
-                        .insert(videoChunks)
-                        .values({
-                            videoId: project.current![0]!.id,
-                            chunkIndex: chunkIndex.current,
-                            r2Key: data.r2Key,
-                            byteSize: e.data.size
-                        })
-                    )
                 }
                 catch(e) {
                     console.error(e)
@@ -161,9 +163,8 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
             setIsRecording(true);
             onStart?.();
 
-            // Custom recording logic
             try {
-                await startRecording();
+                startRecordingAndUploading();
             } catch (error) {
                 console.error("Failed to start recording:", error);
                 setIsRecording(false);
@@ -193,8 +194,8 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
     useEffect(() => {
         async function configureRecording() {
             const stream = await navigator.mediaDevices.getUserMedia({
-            video: { width: { ideal: 3840 }, height: { ideal: 2160 }, deviceId: { exact: videoDeviceId } },
-            audio: { deviceId: { exact: audioDeviceId } }
+                video: { width: { ideal: 3840 }, height: { ideal: 2160 }, deviceId: { exact: videoDeviceId } },
+                audio: { deviceId: { exact: audioDeviceId } }
             });
 
             const mimeTypes = [

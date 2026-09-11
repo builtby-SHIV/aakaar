@@ -112,7 +112,7 @@ export function Navbar({ mode = "landing" }: NavbarProps) {
             <div className="flex items-center gap-3">
               <LogOut variant="navbar" />
               <Link
-                href="/video-meet"
+                href="/dashboard"
                 className="text-xs font-medium bg-[#1A1B1D] border border-[#2E3033] hover:border-[#FA5089] text-[#F2F1ED] px-3 py-1.5 rounded-md transition-all flex items-center gap-2"
               >
                 <div className="w-2 h-2 rounded-full bg-[#EF4444] animate-rec-pulse" />

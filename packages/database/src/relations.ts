@@ -5,6 +5,7 @@ import {
     sessions,
     authenticators,
     projects,
+    projectParticipants,
     videos,
     videoChunks,
     videoEdits,
@@ -15,6 +16,7 @@ export const usersRelations = relations(users, ({ many }) => ({
     sessions: many(sessions),
     authenticators: many(authenticators),
     projects: many(projects),
+    participations: many(projectParticipants),
 }));
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -44,6 +46,18 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
         references: [users.id],
     }),
     videos: many(videos),
+    participants: many(projectParticipants),
+}));
+
+export const projectParticipantsRelations = relations(projectParticipants, ({ one }) => ({
+    project: one(projects, {
+        fields: [projectParticipants.projectId],
+        references: [projects.id],
+    }),
+    user: one(users, {
+        fields: [projectParticipants.userId],
+        references: [users.id],
+    }),
 }));
 
 export const videosRelations = relations(videos, ({ one, many }) => ({

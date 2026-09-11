@@ -83,11 +83,28 @@ export const projects = pgTable("projects", {
         uniqueIndex("project_name_idx").on(table.name, table.userId),
 ]);
 
+export const projectParticipants = pgTable("project_participants", {
+    projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
+    userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+}, (table) => [
+    primaryKey({ columns: [table.projectId, table.userId] }),
+    uniqueIndex("participant_unique_idx").on(table.projectId, table.userId),
+]);
+
 export const videos = pgTable("videos", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     name: varchar().notNull(),
     projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
-    status: text("status").$type<"recording" | "pending_stitch" | "stitching" | "done" | "incomplete">().notNull().default("recording"),
+    status: text("status").$type<
+        "recording" | 
+        "pending_stitch" | 
+        "stitching" | 
+        "done" | 
+        "incomplete" | 
+        "none"
+        >()
+        .notNull()
+        .default("none"),
     expectedChunks: integer("expected_chunks"),
     finalKey: text("final_key"),
     createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),

@@ -2,21 +2,10 @@
 
 import { ArrowLeft, Shield, Radio } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import React from "react";
 import { Logo } from "../Logo";
-import MeetingForm, { type meetingForm } from "../MeetingForm";
-import { useMeetingStore } from "../../providers/meetingStoreProvider";
 
 export function VideoMeetStartView() {
-  const router = useRouter();
-  const { setRoomName } = useMeetingStore((state) => state.actions);
-
-  const onSubmit = (data: meetingForm) => {
-    setRoomName(data.roomName);
-    router.push(`/video-meet/lobby?room=${encodeURIComponent(data.roomName)}`);
-  };
-
   return (
     <div className="min-h-screen bg-[#131415] text-[#F2F1ED] flex flex-col justify-between p-6">
       {/* Top Bar */}
@@ -41,19 +30,26 @@ export function VideoMeetStartView() {
             </span>
           </div>
           <h1 className="text-2xl font-sans font-bold text-[#F2F1ED] tracking-tight">
-            Start or Join Studio
+            Video Meetings
           </h1>
           <p className="text-xs text-[#8B8D90] leading-relaxed">
-            Enter a room identifier to initialize your pre-flight hardware checks and WebRTC session.
+            Video calls can only be initiated by creating or opening a project from your workspace dashboard. Each project generates a dedicated, persistent studio session.
           </p>
         </div>
 
-        <MeetingForm onSubmit={onSubmit} />
+        <div className="pt-2">
+          <Link
+            href="/dashboard"
+            className="w-full py-3 bg-[#FA5089] hover:bg-[#E03F74] text-white font-medium text-xs rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm shadow-[#FA5089]/20 font-mono"
+          >
+            <span>Go to Dashboard to Start Session</span>
+          </Link>
+        </div>
 
         <div className="pt-4 border-t border-[#2E3033] flex items-center justify-between text-[11px] font-mono text-[#8B8D90]">
           <span className="flex items-center gap-1.5">
             <Shield className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Local Multitrack Capture</span>
+            <span>Project-Backed Sessions</span>
           </span>
           <span>Zero Installs</span>
         </div>
