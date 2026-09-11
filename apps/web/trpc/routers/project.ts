@@ -95,42 +95,12 @@ export const projectRouter = createTRPCRouter({
             return result[0];
         }),
 
-    listAll: protectedProcedure.query(async ({ ctx }) => {
-        const currentUserId = ctx.session.user.id as string;
+    listAll: protectedProcedure
+        .query(async ({ ctx }) => {
+            const currentUserId = ctx.session.user.id as string;
 
-        // 1. Query all projects owned by the user (as host)
-        const ownedProjects = await withDb(() =>
-            db
-                .select({
-                    id: projects.id,
-                    name: projects.name,
-                    userId: projects.userId,
-                })
-                .from(projects)
-                .where(eq(projects.userId, currentUserId))
-        );
-
-        // 2. Query all projectIds where the user is present in projectParticipants (as guest)
-        const participatedRecords = await withDb(() =>
-            db
-                .select({
-                    projectId: projectParticipants.projectId,
-                })
-                .from(projectParticipants)
-                .where(eq(projectParticipants.userId, currentUserId))
-        );
-
-        const participatedProjectIds = participatedRecords.map((r) => r.projectId);
-
-        // 3. Query projects matching those projectIds that are not already in ownedProjects
-        const ownedProjectIds = new Set(ownedProjects.map((p) => p.id));
-        const guestProjectIdsToFetch = participatedProjectIds.filter(
-            (id) => !ownedProjectIds.has(id)
-        );
-
-        let guestProjects: { id: number; name: string; userId: string }[] = [];
-        if (guestProjectIdsToFetch.length > 0) {
-            guestProjects = await withDb(() =>
+            // 1. Query all projects owned by the user (as host)
+            const ownedProjects = await withDb(() =>
                 db
                     .select({
                         id: projects.id,
@@ -138,52 +108,83 @@ export const projectRouter = createTRPCRouter({
                         userId: projects.userId,
                     })
                     .from(projects)
-                    .where(inArray(projects.id, guestProjectIdsToFetch))
+                    .where(eq(projects.userId, currentUserId))
             );
-        }
 
-        // 4. Merge all unique projects
-        const allProjects = [...ownedProjects, ...guestProjects];
+            // 2. Query all projectIds where the user is present in projectParticipants (as guest)
+            const participatedRecords = await withDb(() =>
+                db
+                    .select({
+                        projectId: projectParticipants.projectId,
+                    })
+                    .from(projectParticipants)
+                    .where(eq(projectParticipants.userId, currentUserId))
+            );
 
-        if (allProjects.length === 0) {
-            return [];
-        }
+            const participatedProjectIds = participatedRecords.map((r) => r.projectId);
 
-        const allProjectIds = allProjects.map((p) => p.id);
+            // 3. Query projects matching those projectIds that are not already in ownedProjects
+            const ownedProjectIds = new Set(ownedProjects.map((p) => p.id));
+            const guestProjectIdsToFetch = participatedProjectIds.filter(
+                (id) => !ownedProjectIds.has(id)
+            );
 
-        // 5. Fetch participants for all these projects along with their user info
-        const participantsWithUsers = await withDb(() =>
-            db
-                .select({
-                    projectId: projectParticipants.projectId,
-                    userName: users.name,
-                    userEmail: users.email,
-                })
-                .from(projectParticipants)
-                .innerJoin(users, eq(projectParticipants.userId, users.id))
-                .where(inArray(projectParticipants.projectId, allProjectIds))
-        );
+            let guestProjects: { id: number; name: string; userId: string }[] = [];
+            if (guestProjectIdsToFetch.length > 0) {
+                guestProjects = await withDb(() =>
+                    db
+                        .select({
+                            id: projects.id,
+                            name: projects.name,
+                            userId: projects.userId,
+                        })
+                        .from(projects)
+                        .where(inArray(projects.id, guestProjectIdsToFetch))
+                );
+            }
 
-        // Map participants by project id
-        const participantsMap = new Map<number, string[]>();
-        for (const item of participantsWithUsers) {
-            const list = participantsMap.get(item.projectId) || [];
-            const displayName = item.userName || item.userEmail || "Participant";
-            if (!list.includes(displayName))
-                list.push(displayName);
-            participantsMap.set(item.projectId, list);
-        }
+            // 4. Merge all unique projects
+            const allProjects = [...ownedProjects, ...guestProjects];
 
-        return allProjects.map((proj) => ({
-            id: String(proj.id),
-            title: proj.name,
-            episodeNumber: proj.id,
-            status: "Draft" as const,
-            updatedAt: "Active",
-            duration: "--:--",
-            participants: participantsMap.get(proj.id) ?? [],
-            hasCaptions: false,
-            isOwner: proj.userId === currentUserId,
-        }));
-    }),
+            if (allProjects.length === 0) {
+                return [];
+            }
+
+            const allProjectIds = allProjects.map((p) => p.id);
+
+            // 5. Fetch participants for all these projects along with their user info
+            const participantsWithUsers = await withDb(() =>
+                db
+                    .select({
+                        projectId: projectParticipants.projectId,
+                        userName: users.name,
+                        userEmail: users.email,
+                    })
+                    .from(projectParticipants)
+                    .innerJoin(users, eq(projectParticipants.userId, users.id))
+                    .where(inArray(projectParticipants.projectId, allProjectIds))
+            );
+
+            // Map participants by project id
+            const participantsMap = new Map<number, string[]>();
+            for (const item of participantsWithUsers) {
+                const list = participantsMap.get(item.projectId) || [];
+                const displayName = item.userName || item.userEmail || "Participant";
+                if (!list.includes(displayName))
+                    list.push(displayName);
+                participantsMap.set(item.projectId, list);
+            }
+
+            return allProjects.map((proj) => ({
+                id: String(proj.id),
+                title: proj.name,
+                episodeNumber: proj.id,
+                status: "Draft" as const,
+                updatedAt: "Active",
+                duration: "--:--",
+                participants: participantsMap.get(proj.id) ?? [],
+                hasCaptions: false,
+                isOwner: proj.userId === currentUserId,
+            }));
+        }),
 });

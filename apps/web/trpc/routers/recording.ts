@@ -25,8 +25,6 @@ export const recordingRouter = createTRPCRouter({
         )
         .mutation(async ({ input, ctx }) => {
             const sessionUserId = ctx.session.user.id;
-            if (!sessionUserId)
-                throw new AuthError("You must be authenticated to upload recordings");
 
             if (sessionUserId !== input.userId)
                 throw new ForbiddenError("You cannot upload recordings for another user");
@@ -59,7 +57,8 @@ export const recordingRouter = createTRPCRouter({
                     uploadUrl: putUrl,
                     r2Key: `users/${sessionUserId}/projects/${project[0]?.id}/chunks/${input.chunkIndex}.webm`
                 };
-            } catch (error) {
+            } 
+            catch (error) {
                 throw new ExternalServiceError("Storage Service", {
                     cause: error,
                     clientMessage: "Recording cannot be done right now. Please try again later.",

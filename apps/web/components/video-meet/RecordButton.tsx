@@ -25,7 +25,6 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
     const [mediaRecorder, setmediaRecorder] = useState<MediaRecorder | null>(null);
     const chunkIndex = useRef<number>(0);
     const idb = useRef<IDBPDatabase | null>(null);
-    const project = useRef<{ id: number; }[] | null>(null);
 
     const { audioDeviceId, videoDeviceId, projectName } = useMeetingStore(useShallow((state) => ({ 
         audioDeviceId: state.audioDeviceId, 
@@ -56,14 +55,14 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
     }, [projectName, session?.user?.id, uploadUrl]);
 
     const retryUpload = useCallback(async (e: BlobEvent, chunkIndex: number, retriesLeft = 5) => {
-        const url = await getUploadUrl(e, chunkIndex);
-        if (!url)
+        const data = await getUploadUrl(e, chunkIndex);
+        if (!data)
             throw new ExternalServiceError("Cloudflare", {
                     clientMessage: "Recording cannot be done. Please try again later"
                 });
 
         try {
-            const res = await fetch(url.uploadUrl, { 
+            const res = await fetch(data.uploadUrl, { 
                 method: 'PUT', 
                 body: e.data, 
                 headers: { 
@@ -76,14 +75,11 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
         catch(err) {
             if (retriesLeft > 0)
                 return retryUpload(e, chunkIndex, retriesLeft - 1);
-            addChunkToIndexedDB(e, chunkIndex);
+            if (idb.current)
+                await idb.current.put("LeftOverChunks", { e, projectId: projectId }, chunkIndex);
         }
-    }, [getUploadUrl]);
+    }, [getUploadUrl, projectId]);
 
-    const addChunkToIndexedDB = async (e: BlobEvent, chunkIndex: number) => {
-        if (idb.current)
-            await idb.current.put("LeftOverChunks", { e, projectId: project.current }, chunkIndex);
-    }
 
     const setStatusToRecording = useCallback(async () => {
         const project = await withDb(() =>
@@ -94,8 +90,7 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                     projectId: projectId,
                     status: "recording", 
                     expectedChunks: 0,
-                    })
-                .returning({ id: videos.id })
+                })
             );
 
         return project;
@@ -124,12 +119,12 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                             'Content-Length': e.data.size.toString() 
                     }});
 
-                    if (res.ok && project.current !== null)
+                    if (res.ok)
                         await withDb(() =>
                             db
                             .insert(videoChunks)
                             .values({
-                                videoId: project.current![0]!.id,
+                                videoId: projectId,
                                 chunkIndex: currIndex,
                                 r2Key: data.r2Key,
                                 byteSize: e.data.size
@@ -142,7 +137,7 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                         await retryUpload(e, currIndex);
                     }
 
-                    else if (project.current === null)
+                    else if (projectId === null)
                         throw new ExternalServiceError("PgSQL", {
                             clientMessage: "Recording cannot be done. Please try again later"
                         });
@@ -156,7 +151,7 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                 }
             }
         }
-    }, [mediaRecorder, getUploadUrl, retryUpload]);
+    }, [mediaRecorder, getUploadUrl, projectId, retryUpload]);
 
     const handleToggleRecording = async () => {
         if (!isRecording) {
@@ -228,7 +223,8 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
             
             console.log(`Recording started using: ${selectedMime || 'Browser Default'}`);
 
-            project.current = await setStatusToRecording();
+            
+
         }
         configureRecording();
 
