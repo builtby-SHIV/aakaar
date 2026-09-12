@@ -93,7 +93,7 @@ export const projectParticipants = pgTable("project_participants", {
 
 export const videos = pgTable("videos", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar().notNull(),
+    name: varchar(),
     projectId: integer("project_id").notNull().references(() => projects.id, { onDelete: "cascade" }),
     status: text("status").$type<
         "recording" | 

@@ -6,7 +6,6 @@ import { s3 } from "../../lib/s3_config";
 import { db, projects } from "@repo/database";
 import { withDb } from "@repo/lib/safe-db";
 import {
-    AuthError,
     ForbiddenError,
     NotFoundError,
     ExternalServiceError,

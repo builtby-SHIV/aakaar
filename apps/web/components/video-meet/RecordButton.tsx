@@ -25,6 +25,7 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
     const [mediaRecorder, setmediaRecorder] = useState<MediaRecorder | null>(null);
     const chunkIndex = useRef<number>(0);
     const idb = useRef<IDBPDatabase | null>(null);
+    const videoId = useRef<number | null>(null);
 
     const { audioDeviceId, videoDeviceId, projectName } = useMeetingStore(useShallow((state) => ({ 
         audioDeviceId: state.audioDeviceId, 
@@ -34,9 +35,20 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
 
     const uploadUrl = useMutation(
         trpc
-        .recording
-        .getUploadUrl
-        .mutationOptions()
+            .recording
+            .getUploadUrl
+            .mutationOptions()
+    );
+    const createVideo = useMutation(
+        trpc
+            .video
+            .createVideo
+            .mutationOptions({
+                onSuccess: (data: { id?: number | undefined }) => {
+                    if (data.id)
+                        videoId.current = data.id;
+                }
+            })
     );
     
     const getUploadUrl = useCallback(async (e: BlobEvent, chunkIndex: number) => {
@@ -79,22 +91,6 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                 await idb.current.put("LeftOverChunks", { e, projectId: projectId }, chunkIndex);
         }
     }, [getUploadUrl, projectId]);
-
-
-    const setStatusToRecording = useCallback(async () => {
-        const project = await withDb(() =>
-                db
-                .insert(videos)
-                .values({
-                    name: `${session?.user?.name}/${projectName}`,
-                    projectId: projectId,
-                    status: "recording", 
-                    expectedChunks: 0,
-                })
-            );
-
-        return project;
-    }, [projectId, projectName, session?.user?.name]);
         
     const startRecordingAndUploading = useCallback(() => {
         if (mediaRecorder) {
@@ -223,12 +219,22 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
             
             console.log(`Recording started using: ${selectedMime || 'Browser Default'}`);
 
-            
+            try {
+                await createVideo.mutateAsync({
+                    name: `${session?.user?.name}/${projectName}/${Date.now()}`,
+                    projectId,
+                    status: 'recording',
+                    expectedChunks: 0
+                });
+            }
+            catch(e) {
+                console.error("Create video mutation failed" + e);
+            }
 
         }
         configureRecording();
 
-    }, [audioDeviceId, projectId, projectName, session?.user?.name, setStatusToRecording, videoDeviceId]);
+    }, [audioDeviceId, createVideo, projectId, projectName, session?.user?.name, videoDeviceId]);
 
     return (
         <button

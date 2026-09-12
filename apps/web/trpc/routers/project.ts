@@ -52,9 +52,8 @@ export const projectRouter = createTRPCRouter({
                     .where(eq(projects.id, input.projectId))
             );
 
-            if (existingProject.length === 0) {
+            if (existingProject.length === 0)
                 throw new NotFoundError(`Project with id ${input.projectId}`);
-            }
 
             // 2. Insert into project_participants (idempotent via onConflictDoNothing)
             await withDb(() =>
@@ -119,7 +118,7 @@ export const projectRouter = createTRPCRouter({
                     })
                     .from(projectParticipants)
                     .where(eq(projectParticipants.userId, currentUserId))
-            );
+                );
 
             const participatedProjectIds = participatedRecords.map((r) => r.projectId);
 
