@@ -9,8 +9,6 @@ import { useMutation } from "@tanstack/react-query";
 import { ExternalServiceError } from "@repo/lib/errors";
 import { openDB, type IDBPDatabase } from "idb";
 import { useSession } from "next-auth/react";
-import { db, videoChunks, videos } from "@repo/database";
-import { withDb } from "@repo/lib/safe-db";
 
 export interface RecordButtonProps {
     onStart?: () => void;
@@ -49,6 +47,12 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                         videoId.current = data.id;
                 }
             })
+    );
+    const addChunk = useMutation(
+        trpc
+            .videoChunk
+            .createChunk
+            .mutationOptions()
     );
     
     const getUploadUrl = useCallback(async (e: BlobEvent, chunkIndex: number) => {
@@ -116,16 +120,12 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                     }});
 
                     if (res.ok)
-                        await withDb(() =>
-                            db
-                            .insert(videoChunks)
-                            .values({
-                                videoId: projectId,
-                                chunkIndex: currIndex,
-                                r2Key: data.r2Key,
-                                byteSize: e.data.size
-                            })
-                        )
+                        addChunk.mutate({
+                            videoId: videoId.current!,
+                            chunkIndex: currIndex,
+                            r2Key: data.r2Key,
+                            byteSize: e.data.size
+                        })
 
                     else if (!res.ok || res.status === 400 || res.status === 403)
                     {
@@ -147,7 +147,7 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                 }
             }
         }
-    }, [mediaRecorder, getUploadUrl, projectId, retryUpload]);
+    }, [mediaRecorder, getUploadUrl, addChunk, projectId, retryUpload]);
 
     const handleToggleRecording = async () => {
         if (!isRecording) {
