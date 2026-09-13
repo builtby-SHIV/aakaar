@@ -88,7 +88,6 @@ export const projectParticipants = pgTable("project_participants", {
     userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
 }, (table) => [
     primaryKey({ columns: [table.projectId, table.userId] }),
-    uniqueIndex("participant_unique_idx").on(table.projectId, table.userId),
 ]);
 
 export const videos = pgTable("videos", {
