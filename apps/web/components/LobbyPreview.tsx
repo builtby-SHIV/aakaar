@@ -66,6 +66,8 @@ export function LobbyPreview({
 
                 setAudioDevices(uniquemics);
                 setVideoDevices(uniquevideos);
+                setVideoDeviceId(uniquevideos[0]!.deviceId!)
+                console.log(uniquevideos[0]!.deviceId!)
             }
 
             catch (e) {
@@ -287,11 +289,8 @@ export function LobbyPreview({
 
                 {/* Overlay Badges */}
                 <div className="absolute top-4 left-4 flex items-center gap-2">
-                    <span className="px-2.5 py-1 rounded bg-[#131415]/80 backdrop-blur-md border border-[#2E3033] text-[#F2F1ED] text-[11px] font-mono">
+                    <span className="px-2.5 py-1 rounded bg-background/80 backdrop-blur-md border border-border text-foreground text-[11px] font-mono">
                         {username.trim() || "Local Participant"}
-                    </span>
-                    <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-mono">
-                        1080p · 60fps
                     </span>
                 </div>
 
@@ -299,16 +298,16 @@ export function LobbyPreview({
                 <div 
                     className="absolute 
                         bottom-4 right-4 
-                        bg-[#131415]/80 
+                        bg-background/80 
                         backdrop-blur-md 
                         px-3 py-1.5 
                         rounded-lg 
                         border 
-                        border-[#2E3033] 
+                        border-border 
                         flex items-center 
                         gap-2"
                     >
-                    <div className="text-[10px] font-mono text-[#8B8D90]">MIC</div>
+                    <div className="text-[10px] font-mono text-muted">MIC</div>
                     <WaveformPreview
                         bars={18}
                         height={16}
@@ -372,16 +371,17 @@ export function LobbyPreview({
                                 onChange={(e) => {
                                     setSelectedVideoId(e.target.value);
                                     setVideoDeviceId(e.target.value);
+                                    console.log(e.target.value)
                                 }}
                                 disabled={!video}
                                 className="w-full 
                                     appearance-none 
                                     px-3 py-2 pr-8 
-                                    bg-[#131415] 
+                                    bg-background 
                                     border 
-                                    border-[#2E3033] 
+                                    border-border 
                                     rounded-lg text-xs 
-                                    text-[#F2F1ED] 
+                                    text-foreground 
                                     font-mono
                                     outline-none 
                                     focus:border-[#FA5089] 

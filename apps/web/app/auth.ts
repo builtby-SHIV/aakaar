@@ -23,6 +23,14 @@ export const authConfig = NextAuth({
             }
         }),
     ],
+    callbacks: {
+        // When using an adapter, the callback receives 'user' instead of 'token'
+        async session({ session, user }) {
+            if (session.user)
+                session.user.id = user.id
+            return session
+            },
+        },
     pages: {
         signIn: "/login",
     },

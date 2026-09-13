@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Copy, Check, Shield, Radio } from "lucide-react";
+import { X, Copy, Check,  Radio } from "lucide-react";
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -62,7 +62,6 @@ export function ShareModal({ isOpen, onClose, roomId = "ep-14-live" }: ShareModa
         <div className="pt-2 border-t border-[#2E3033] flex items-center justify-between text-[11px] font-mono text-[#8B8D90]">
           <span className="flex items-center gap-1.5">
             <Radio className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Local Chunk Isolation</span>
           </span>
           <span>Max 8 Peers</span>
         </div>

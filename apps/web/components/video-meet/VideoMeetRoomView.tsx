@@ -46,11 +46,10 @@ export function VideoMeetRoomView() {
         serverUrl || process.env.NEXT_PUBLIC_LIVEKIT_URL || "";
 
     useEffect(() => {
-        if (!token || !effectiveServerUrl) {
+        if (!token || !effectiveServerUrl)
         router.replace(
             `/video-meet/lobby?room=${encodeURIComponent(activeRoom)}`,
         );
-        }
     }, [token, effectiveServerUrl, activeRoom, router]);
 
     useEffect(() => {
@@ -109,10 +108,8 @@ export function VideoMeetRoomView() {
                     <span>Invite Guest</span>
                 </button>
 
-                <RecordButton 
-                    projectId={numericProjectId}
-                    onStart={() => setIsInfoDialogOpen(true)}
-                />
+
+
 
                 <button
                     type="button"
@@ -140,6 +137,13 @@ export function VideoMeetRoomView() {
             >
                 <VideoConference />
                 <RoomAudioRenderer />
+                {/* RecordButton must be inside LiveKitRoom for useLocalParticipant() context */}
+                <div className="absolute top-2 right-2 z-20">
+                    <RecordButton 
+                        projectId={numericProjectId}
+                        onStart={() => setIsInfoDialogOpen(true)}
+                    />
+                </div>
             </LiveKitRoom>
         </div>
 

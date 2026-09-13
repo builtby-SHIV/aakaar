@@ -16,10 +16,10 @@ export const recordingRouter = createTRPCRouter({
     getUploadUrl: protectedProcedure
         .input(
             z.object({
-                userId: z.string().nonoptional(),
-                projectName: z.string().nonoptional(),
-                chunkIndex: z.nonnegative(),
-                mimeType: z.string().nonoptional(),
+                userId: z.string(),
+                projectName: z.string(),
+                chunkIndex: z.number(),
+                mimeType: z.string(),
             }),
         )
         .mutation(async ({ input, ctx }) => {
@@ -49,8 +49,9 @@ export const recordingRouter = createTRPCRouter({
                         Key: `users/${sessionUserId}/projects/${project[0]?.id}/chunks/${input.chunkIndex}.webm`,
                         ContentType: input.mimeType,
                     }),
-                    { expiresIn: 3000 },
+                    { expiresIn: 300 },
                 );
+                console.log(putUrl);
 
                 return { 
                     uploadUrl: putUrl,

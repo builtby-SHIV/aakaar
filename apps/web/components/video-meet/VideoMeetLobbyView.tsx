@@ -47,9 +47,8 @@ export function VideoMeetLobbyView() {
 
     // 2. If user accesses /video-meet/lobby without a valid project id, reroute to /dashboard
     useEffect(() => {
-        if (status !== "loading" && (!effectiveRoom || !isValidProjectId)) {
+        if (status !== "loading" && (!effectiveRoom || !isValidProjectId))
             router.replace("/dashboard");
-        }
     }, [effectiveRoom, isValidProjectId, router, status]);
 
     // 3. Keep store in sync with room query parameter
@@ -68,9 +67,8 @@ export function VideoMeetLobbyView() {
     });
 
     useEffect(() => {
-        if (projectQuery.data?.name) {
+        if (projectQuery.data?.name)
             setProjectName(projectQuery.data.name);
-        }
     }, [projectQuery.data?.name, setProjectName]);
 
     const joinMeetingMutation = useMutation(
@@ -110,9 +108,8 @@ export function VideoMeetLobbyView() {
                 projectId: numericProjectId,
             });
 
-            if (joinedProject?.name) {
+            if (joinedProject?.name)
                 setProjectName(joinedProject.name);
-            }
 
             setMediaPreferences(values.audioEnabled, values.videoEnabled);
             (getToken.mutate as any)({
@@ -126,9 +123,8 @@ export function VideoMeetLobbyView() {
         }
     };
 
-    if (status === "loading" || !effectiveRoom || !isValidProjectId) {
+    if (status === "loading" || !effectiveRoom || !isValidProjectId)
         return null;
-    }
 
     return (
         <div className="min-h-screen bg-[#131415] text-[#F2F1ED] py-12">
