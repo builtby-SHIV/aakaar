@@ -1,29 +1,63 @@
 import { initTRPC } from '@trpc/server';
- 
+import { auth } from '../app/auth';
+import { AuthError } from '@repo/lib/errors';
+import { errorFormatter, mapToTRPCError } from './error-handler';
+
 /**
  * This context creator accepts `headers` so it can be reused in both
  * the RSC server caller (where you pass `next/headers`) and the
  * API route handler (where you pass the request headers).
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  // const user = await auth(opts.headers);
-    return { userId: 'user_123' };
+    const session = await auth(); // reads the session from cookies server-side
+    return {
+        session,
+        headers: opts.headers,
+    };
 };
- 
-// Avoid exporting the entire t-object
-// since it's not very descriptive.
-// For instance, the use of a t variable
-// is common in i18n libraries.
+
 const t = initTRPC
     .context<Awaited<ReturnType<typeof createTRPCContext>>>()
     .create({
-    /**
-     * @see https://trpc.io/docs/server/data-transformers
-     */
-    // transformer: superjson,
+        errorFormatter,
     });
- 
+
+/**
+ * Global procedure middleware that catches any thrown error
+ * (including AppError subclasses and raw database errors),
+ * mapping them into safe, well-formed TRPCErrors.
+ */
+export const errorHandlingMiddleware = t.middleware(async ({ next }) => {
+    const result = await next();
+    if (!result.ok)
+        throw mapToTRPCError(result.error.cause ?? result.error);
+
+    return result;
+});
+
 // Base router and procedure helpers
 export const createTRPCRouter = t.router;
 export const createCallerFactory = t.createCallerFactory;
-export const baseProcedure = t.procedure;
+
+// Base procedure equipped with error middleware
+export const baseProcedure = t.procedure.use(errorHandlingMiddleware);
+
+// Protected procedure verifying user authentication
+export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
+    const user = ctx.session?.user;
+    if (!user?.id)
+        throw new AuthError("You must be logged in to perform this action");
+
+    return next({
+        ctx: {
+            ...ctx,
+            session: {
+                ...ctx.session,
+                user: {
+                    ...user,
+                    id: user.id as string,
+                },
+            },
+        },
+    });
+});

@@ -1,7 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40" fill="none">
-  <rect width="32" height="32" rx="6" y="4" fill="#141413" />
-  <circle cx="16" cy="20" r="10" stroke="#F7F6F2" stroke-width="1.8" />
-  <rect x="11" y="15" width="10" height="10" rx="1.5" fill="#F7F6F2" />
-  <circle cx="16" cy="20" r="2" fill="#141413" />
-  <text x="44" y="26" font-family="Newsreader, serif" font-size="20" font-weight="600" fill="#141413" letter-spacing="-0.02em">Aakaar</text>
+  <rect width="32" height="32" rx="7" y="4" fill="#1A1B1D" stroke="#2E3033" stroke-width="1.2" />
+  <path
+    d="M8 20L12.5 13H19.5L24 20L19.5 27H12.5L8 20Z"
+    stroke="#F2F1ED"
+    stroke-width="1.8"
+    stroke-linejoin="round"
+  />
+  <circle cx="16" cy="20" r="3" fill="#FA5089" />
+  <text x="44" y="26" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="700" fill="#F2F1ED" letter-spacing="-0.03em">Aakaar</text>
 </svg>

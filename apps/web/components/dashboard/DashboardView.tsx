@@ -36,11 +36,11 @@ export function DashboardView({
   } = useDashboardProjects({ initialProjects });
 
   return (
-    <div className="min-h-screen bg-[#F7F6F2] text-[#141413] flex flex-col justify-between">
+    <div className="min-h-screen bg-[#131415] text-[#F2F1ED] flex flex-col justify-between selection:bg-[#FA5089] selection:text-white">
       <div>
         <Navbar mode="app" />
 
-        <main className="max-w-5xl mx-auto px-6 py-16 space-y-12">
+        <main className="max-w-5xl mx-auto px-6 py-12 space-y-8">
           {/* Header Section */}
           <DashboardHeader
             userName={userName}

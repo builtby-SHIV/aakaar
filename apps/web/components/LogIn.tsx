@@ -49,7 +49,7 @@ export function LogIn({
                     type="submit"
                     name="action"
                     value="google"
-                    className={`text-sm font-medium text-[#7A7870] hover:text-[#141413] px-3 py-1.5 rounded-md hover:bg-[#F2F0EB] transition-colors cursor-pointer flex items-center gap-2 ${className}`}
+                    className={`text-sm font-medium text-[#8B8D90] hover:text-[#F2F1ED] px-3 py-1.5 rounded-md hover:bg-[#242628] transition-colors cursor-pointer flex items-center gap-2 ${className}`}
                 >
                     {showIcon && <GoogleIcon className="w-3.5 h-3.5" />}
                     <span>{label || "Sign in"}</span>
@@ -60,15 +60,15 @@ export function LogIn({
 
     if (variant === "card") {
         return (
-            <div className={`p-8 rounded-xl border border-[#E5E3DC] bg-[#FFFFFF] shadow-sm max-w-sm w-full text-center space-y-6 ${className}`}>
+            <div className={`p-8 rounded-xl border border-[#2E3033] bg-[#1A1B1D] shadow-sm max-w-sm w-full text-center space-y-6 ${className}`}>
                 <div className="space-y-2">
-                    <span className="text-xs uppercase font-mono tracking-widest text-[#7A7870]">
+                    <span className="text-xs uppercase font-mono tracking-widest text-[#8B8D90]">
                         Authentication
                     </span>
-                    <h3 className="text-2xl font-serif font-normal text-[#141413]">
+                    <h3 className="text-2xl font-bold text-[#F2F1ED]">
                         Welcome to Aakaar
                     </h3>
-                    <p className="text-sm text-[#7A7870]">
+                    <p className="text-sm text-[#8B8D90]">
                         Sign in with your Google account to access your studio workspace and saved recordings.
                     </p>
                 </div>
@@ -78,7 +78,7 @@ export function LogIn({
                         type="submit"
                         name="action"
                         value="google"
-                        className="w-full py-2.5 px-4 bg-[#141413] text-[#F7F6F2] hover:bg-[#2B2A27] rounded-md font-medium text-sm transition-all flex items-center justify-center gap-2.5 shadow-sm cursor-pointer"
+                        className="w-full py-2.5 px-4 bg-[#FA5089] text-white hover:bg-[#E8457B] rounded-md font-medium text-sm transition-all flex items-center justify-center gap-2.5 shadow-sm cursor-pointer"
                     >
                         {showIcon && <GoogleIcon className="w-4 h-4" />}
                         <span>{label || "Sign in with Google"}</span>
@@ -95,7 +95,7 @@ export function LogIn({
                 type="submit"
                 name="action"
                 value="google"
-                className="w-full justify-center px-4 py-2.5 border border-[#E5E3DC] bg-[#FFFFFF] hover:bg-[#F2F0EB] text-[#141413] text-sm font-medium rounded-md transition-all flex items-center gap-2.5 shadow-xs cursor-pointer"
+                className="w-full justify-center px-4 py-2.5 border border-[#2E3033] bg-[#1A1B1D] hover:bg-[#242628] text-[#F2F1ED] text-sm font-medium rounded-md transition-all flex items-center gap-2.5 shadow-xs cursor-pointer"
             >
                 {showIcon && <GoogleIcon className="w-4 h-4" />}
                 <span>{label || "Sign in with Google"}</span>

@@ -16,8 +16,8 @@ interface WaveformPreviewProps {
 export function WaveformPreview({
   bars = 40,
   height = 28,
-  activeColor = "#141413",
-  inactiveColor = "#D1CEC5",
+  activeColor = "#FA5089",
+  inactiveColor = "#2E3033",
   progress = 0.45,
   audioLevel,
   animated = false,

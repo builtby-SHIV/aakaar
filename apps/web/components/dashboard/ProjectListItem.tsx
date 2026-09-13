@@ -11,27 +11,27 @@ interface ProjectListItemProps {
 
 export const ProjectListItem: React.FC<ProjectListItemProps> = ({ project }) => {
   return (
-    <div className="px-6 py-4 flex items-center justify-between hover:bg-[#FAF9F6] transition-colors group">
+    <div className="px-6 py-4 flex items-center justify-between hover:bg-[#242628] transition-colors group">
       {/* Left: Title & Meta */}
       <div className="space-y-1 max-w-md">
         <Link
           href={`/editor/${project.id}`}
-          className="text-sm font-medium text-[#141413] group-hover:text-[#E54D2E] transition-colors flex items-center gap-2"
+          className="text-sm font-sans font-medium text-[#F2F1ED] group-hover:text-[#FA5089] transition-colors flex items-center gap-2"
         >
           <span>{project.title}</span>
-          <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#E54D2E]" />
+          <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-[#FA5089]" />
         </Link>
-        <div className="flex items-center gap-2 text-xs text-[#7A7870] font-mono">
-          <span>Ep. {project.episodeNumber}</span>
+        <div className="flex items-center gap-2 text-xs text-[#8B8D90] font-mono">
+          <span>EP.{project.episodeNumber}</span>
           <span>·</span>
           <span>{project.updatedAt}</span>
           <span>·</span>
-          <span>{project.duration}</span>
+          <span className="text-[#F2F1ED]">{project.duration}</span>
           {project.hasCaptions && (
             <>
               <span>·</span>
-              <span className="text-amber-700 bg-amber-50 px-1 rounded text-[10px]">
-                Captions
+              <span className="text-amber-400 bg-amber-950/40 border border-amber-500/20 px-1 rounded text-[10px]">
+                CAPTIONS_SYNCED
               </span>
             </>
           )}
@@ -41,7 +41,7 @@ export const ProjectListItem: React.FC<ProjectListItemProps> = ({ project }) => 
       {/* Right: Controls & Details */}
       <div className="flex items-center gap-6">
         {/* Participants */}
-        <div className="hidden md:flex items-center gap-1 text-xs text-[#7A7870]">
+        <div className="hidden md:flex items-center gap-1 text-xs text-[#8B8D90]">
           <ProjectParticipantAvatars participants={project.participants} />
         </div>
 
@@ -54,15 +54,15 @@ export const ProjectListItem: React.FC<ProjectListItemProps> = ({ project }) => 
         <div className="flex items-center gap-2">
           <Link
             href={`/editor/${project.id}`}
-            className="px-3 py-1.5 text-xs font-medium bg-[#FAF9F6] border border-[#E5E3DC] hover:border-[#141413] rounded text-[#141413] transition-all"
+            className="px-3 py-1.5 text-xs font-mono bg-[#1A1B1D] border border-[#2E3033] hover:border-[#FA5089] rounded text-[#F2F1ED] transition-all"
           >
             Edit
           </Link>
 
           <Link
-            href="/video-meet"
+            href={`/video-meet/lobby?room=${project.id}`}
             title="Open Live Studio Room"
-            className="p-1.5 rounded hover:bg-[#EFECE6] text-[#7A7870] hover:text-[#141413] transition-colors"
+            className="p-1.5 rounded hover:bg-[#2E3033] text-[#8B8D90] hover:text-[#F2F1ED] transition-colors"
           >
             <Video className="w-4 h-4" />
           </Link>
