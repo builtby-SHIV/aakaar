@@ -30,7 +30,7 @@ const t = initTRPC
 export const errorHandlingMiddleware = t.middleware(async ({ next }) => {
     const result = await next();
     if (!result.ok)
-        throw mapToTRPCError(result.error.cause ?? result.error);
+        throw mapToTRPCError(result.error);
 
     return result;
 });

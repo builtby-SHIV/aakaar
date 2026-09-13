@@ -3,6 +3,7 @@ import { createTRPCRouter, protectedProcedure } from "../init";
 import { withDb } from "@repo/lib/safe-db";
 import { db, videos } from "@repo/database";
 import { and, eq, type SQL } from "drizzle-orm";
+import { assertProjectAccess } from "./assertproject-access";
 
 export const videoRouter = createTRPCRouter({
     createVideo: protectedProcedure
@@ -21,7 +22,8 @@ export const videoRouter = createTRPCRouter({
                 expectedChunks: z.number().default(0),
             })
         )
-        .mutation(async ({ input }) => {
+        .mutation(async ({ input, ctx }) => {
+            await assertProjectAccess(input.projectId, ctx.session.user.id as string);
             const video = await withDb(() =>
                 db
                     .insert(videos)
@@ -76,7 +78,8 @@ export const videoRouter = createTRPCRouter({
                         path: ["name"]
                     })
             )
-            .mutation(async ({ input }) => {
+            .mutation(async ({ input, ctx }) => {
+                await assertProjectAccess(input.projectId, ctx.session.user.id as string);
                 const conditions: SQL[] = [];
                 if (input.name)
                     conditions.push(eq(videos.name, input.name), eq(videos.projectId, input.projectId));

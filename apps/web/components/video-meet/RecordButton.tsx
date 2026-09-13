@@ -6,7 +6,7 @@ import { useMeetingStore } from "../../providers/meetingStoreProvider";
 import { useShallow } from "zustand/react/shallow";
 import { useTRPC } from "../../trpc/client";
 import { useMutation } from "@tanstack/react-query";
-import { ExternalServiceError } from "@repo/lib/errors";
+import { DatabaseError, ExternalServiceError } from "@repo/lib/errors";
 import { openDB, type IDBPDatabase } from "idb";
 import { useSession } from "next-auth/react";
 import { useLocalParticipant } from "@livekit/components-react";
@@ -57,14 +57,10 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
     );
     
     const getUploadUrl = useCallback(async (e: BlobEvent, chunkIndex: number) => {
-        console.log({userId: session?.user?.id || "",
-            projectName,
-            chunkIndex,
-            mimeType: e.data.type})
         try {
             const url = await uploadUrl.mutateAsync({
                 userId: session?.user?.id || "",
-                projectName,
+                projectId,
                 chunkIndex,
                 mimeType: e.data.type
             });
@@ -74,7 +70,7 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
         catch(e) {
             console.error("Upload URL generation failed" + e);
         }
-    }, [projectName, session?.user?.id, uploadUrl]);
+    }, [projectId, session?.user?.id, uploadUrl]);
 
     const retryUpload = useCallback(async (e: BlobEvent, chunkIndex: number, retriesLeft = 5) => {
         const data = await getUploadUrl(e, chunkIndex);
@@ -184,9 +180,6 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
     };
 
     const configureRecording = useCallback(async () => {
-        // Get the raw MediaStreamTracks from LiveKit's local participant.
-        // These are the same hardware tracks LiveKit is already using,
-        // so no new getUserMedia call is needed (avoids OverConstrained).
         const videoTrack = localParticipant
             .getTrackPublication(Track.Source.Camera)
             ?.track?.mediaStreamTrack;
@@ -199,12 +192,10 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
             return;
         }
 
-        // Combine into a single MediaStream for the MediaRecorder
         const tracksToRecord: MediaStreamTrack[] = [videoTrack];
         if (audioTrack) tracksToRecord.push(audioTrack);
         const combinedStream = new MediaStream(tracksToRecord);
 
-        // Pick the best supported codec
         const mimeTypes = [
             'video/webm;codecs=av1,opus',
             'video/mp4;codecs=hvc1,mp4a.40.2',
@@ -245,6 +236,7 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
         }
         catch(e) {
             console.error("Create video mutation failed" + e);
+            throw new DatabaseError();
         }
 
     }, [localParticipant, createVideo, projectId, projectName, session?.user?.name]);

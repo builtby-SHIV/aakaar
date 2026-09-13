@@ -25,7 +25,7 @@ export function useDashboardProjects(options?: UseDashboardProjectsOptions) {
   const projectsQuery = useQuery(trpc.project.listAll.queryOptions());
 
   const projects: Project[] = useMemo(() => {
-    if (projectsQuery.data && projectsQuery.data.length > 0) {
+    if (projectsQuery.data !== undefined) {
       return projectsQuery.data;
     }
     return options?.initialProjects ?? [];
@@ -42,9 +42,6 @@ export function useDashboardProjects(options?: UseDashboardProjectsOptions) {
           // Redirect directly to studio lobby for this project
           router.push(`/video-meet/lobby?room=${newProject.id}`);
         }
-      },
-      onError: (err) => {
-        notifyTRPCError(err, "Failed to create project");
       },
     })
   );

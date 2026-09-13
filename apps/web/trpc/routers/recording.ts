@@ -3,21 +3,21 @@ import { createTRPCRouter, protectedProcedure } from "../init";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { s3 } from "../../lib/s3_config";
-import { db, projects } from "@repo/database";
+import { db, projectParticipants, projects } from "@repo/database";
 import { withDb } from "@repo/lib/safe-db";
 import {
     ForbiddenError,
     NotFoundError,
     ExternalServiceError,
 } from "@repo/lib/errors";
-import { and, eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 
 export const recordingRouter = createTRPCRouter({
     getUploadUrl: protectedProcedure
         .input(
             z.object({
                 userId: z.string(),
-                projectName: z.string(),
+                projectId: z.number(),
                 chunkIndex: z.number(),
                 mimeType: z.string(),
             }),
@@ -32,14 +32,24 @@ export const recordingRouter = createTRPCRouter({
                 db
                 .select({ id: projects.id })
                 .from(projects)
+                .leftJoin(
+                    projectParticipants,
+                    eq(
+                        projectParticipants.projectId,
+                        projects.id
+                    )
+                )
                 .where(and(
-                    eq(projects.name, input.projectName),
-                    eq(projects.userId, input.userId)
+                    eq(projects.id, input.projectId),
+                    or(
+                        eq(projects.userId, input.userId),
+                        eq(projects.userId, input.userId)
+                    )
                 ))
             );
 
             if (project.length <= 0)
-                throw new NotFoundError(`Project "${input.projectName}"`);
+                throw new ForbiddenError(`Project "${input.projectId}"`);
 
             try {
                 const putUrl = await getSignedUrl(
