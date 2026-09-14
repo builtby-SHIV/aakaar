@@ -23,11 +23,11 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
     const { data: session } = useSession();
     const [isRecording, setIsRecording] = useState(false);
     const chunkIndex = useRef<number>(0);
+    const isLastChunk = useRef<boolean>(false);
     const idb = useRef<IDBPDatabase | null>(null);
     const videoId = useRef<number | null>(null);
     const mediaRecorder = useRef<MediaRecorder | null>(null);
     const { localParticipant } = useLocalParticipant();
-
     const { projectName } = useMeetingStore(useShallow((state) => ({ 
         projectName: state.projectName
     })));
@@ -73,6 +73,7 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
     }, [projectId, session?.user?.id, uploadUrl]);
 
     const retryUpload = useCallback(async (e: BlobEvent, chunkIndex: number, retriesLeft = 5) => {
+
         const data = await getUploadUrl(e, chunkIndex);
         if (!data)
             throw new ExternalServiceError("Cloudflare", {
@@ -123,12 +124,17 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                     }});
 
                     if (res.ok)
+                    {
                         addChunk.mutate({
                             videoId: videoId.current!,
                             chunkIndex: currIndex,
                             r2Key: data.r2Key,
                             byteSize: e.data.size
-                        })
+                        });
+
+                        if (isLastChunk.current)
+                            
+                    }
 
                     else if (!res.ok || res.status === 400 || res.status === 403)
                     {
@@ -161,20 +167,22 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                 console.log("configuring recording");
                 await configureRecording();
                 startRecordingAndUploading();
-            } catch (error) {
+            } 
+            catch (error) {
                 console.error("Failed to start recording:", error);
                 setIsRecording(false);
             }
-        } else {
-            setIsRecording(false);
+        } 
+        else {
             onStop?.();
+            // setIsRecording(false);
 
             if (mediaRecorder.current && mediaRecorder.current.state !== 'inactive') {
-                // Request the final chunk and stop the recorder
-                mediaRecorder.current.requestData();
+                // mediaRecorder.current.requestData();
                 mediaRecorder.current.stop();
-                mediaRecorder.current = null;
-                chunkIndex.current = 0;
+                isLastChunk.current = true;
+                // mediaRecorder.current = null;
+                // chunkIndex.current = 0;
             }
         }
     };
@@ -193,7 +201,8 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
         }
 
         const tracksToRecord: MediaStreamTrack[] = [videoTrack];
-        if (audioTrack) tracksToRecord.push(audioTrack);
+        if (audioTrack) 
+            tracksToRecord.push(audioTrack);
         const combinedStream = new MediaStream(tracksToRecord);
 
         const mimeTypes = [
@@ -219,7 +228,8 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
 
         try {
             mediaRecorder.current = new MediaRecorder(combinedStream, recorderOptions);
-        } catch (err) {
+        } 
+        catch (err) {
             console.error("Failed to initialize MediaRecorder:", err);
             return;
         }
@@ -254,7 +264,6 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
 
         initDB();
     }, []);
-
 
     return (
         <button

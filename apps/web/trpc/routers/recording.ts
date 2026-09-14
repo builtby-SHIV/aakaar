@@ -7,7 +7,6 @@ import { db, projectParticipants, projects } from "@repo/database";
 import { withDb } from "@repo/lib/safe-db";
 import {
     ForbiddenError,
-    NotFoundError,
     ExternalServiceError,
 } from "@repo/lib/errors";
 import { and, eq, or } from "drizzle-orm";

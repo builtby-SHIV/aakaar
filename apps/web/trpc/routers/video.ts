@@ -98,5 +98,25 @@ export const videoRouter = createTRPCRouter({
                         .set(updatePayload)
                         .where(and(...conditions))
                 );
+            }),
+        updateNumberofChunks: protectedProcedure
+            .input(
+                z
+                    .object({
+                        projectId: z.number(),
+                        videoId: z.number(),
+                        expectedChunks: z.number().nonnegative()
+                    })
+            )
+            .mutation(async ({ input, ctx }) => {
+                await assertProjectAccess(input.projectId, ctx.session.user.id as string);
+                await withDb(() =>
+                    db
+                    .update(videos)
+                    .set({ expectedChunks: input.expectedChunks })
+                    .where(
+                        eq(videos.id, input.videoId)
+                    )
+                )
             })
     })
