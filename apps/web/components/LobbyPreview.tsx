@@ -41,6 +41,18 @@ export function LobbyPreview({
 
     const { setAudioDeviceId, setVideoDeviceId } = useMeetingStore((state) => state.actions);
 
+    const stopActiveVideoStream = useCallback(() => {
+        if (videoStreamRef.current) {
+            videoStreamRef.current.getTracks().forEach((track) => track.stop());
+            videoStreamRef.current = null;
+        }
+        if (videoRef.current) {
+            const stream = videoRef.current.srcObject as MediaStream | null;
+            stream?.getTracks().forEach((track) => track.stop());
+            videoRef.current.srcObject = null;
+        }
+    }, []);
+
     useEffect(() => {
         async function loadDevices() {
             try {
@@ -66,7 +78,7 @@ export function LobbyPreview({
 
                 setAudioDevices(uniquemics);
                 setVideoDevices(uniquevideos);
-                setVideoDeviceId(uniquevideos[0]!.deviceId!)
+                // setVideoDeviceId(uniquevideos[0]!.deviceId!)
                 console.log(uniquevideos[0]!.deviceId!)
             }
 
@@ -79,21 +91,9 @@ export function LobbyPreview({
         navigator.mediaDevices.addEventListener('devicechange', loadDevices);
         return () => {
             navigator.mediaDevices.removeEventListener('devicechange', loadDevices);
+            stopActiveVideoStream();
         }
-    }, []);
-
-
-    const stopActiveVideoStream = useCallback(() => {
-        if (videoStreamRef.current) {
-            videoStreamRef.current.getTracks().forEach((track) => track.stop());
-            videoStreamRef.current = null;
-        }
-        if (videoRef.current) {
-            const stream = videoRef.current.srcObject as MediaStream | null;
-            stream?.getTracks().forEach((track) => track.stop());
-            videoRef.current.srcObject = null;
-        }
-    }, []);
+    }, [stopActiveVideoStream]);
 
     useEffect(() => {
         let isCancelled = false;
@@ -170,7 +170,7 @@ export function LobbyPreview({
             }
             setAudioStreamReady(false);
         };
-    }, [selectedAudioId]);
+    }, [audio, selectedAudioId]);
 
     useEffect(() => {
         if (!audioStreamRef.current) 

@@ -11,66 +11,66 @@ import { Project } from "./types";
 import { useDashboardProjects } from "./useDashboardProjects";
 
 interface DashboardViewProps {
-  initialProjects?: Project[];
-  userName?: string;
-  workspaceName?: string;
-  mediaHours?: number;
+    initialProjects?: Project[];
+    userName?: string;
+    workspaceName?: string;
+    mediaHours?: number;
 }
 
 export function DashboardView({
-  initialProjects,
-  userName,
-  workspaceName,
-  mediaHours,
+    initialProjects,
+    userName,
+    workspaceName,
+    mediaHours,
 }: DashboardViewProps) {
-  const {
-    projects,
-    filteredProjects,
-    searchQuery,
-    setSearchQuery,
-    filterStatus,
-    setFilterStatus,
-    isCreating,
-    setIsCreating,
-    handleCreateProject,
-  } = useDashboardProjects({ initialProjects });
+    const {
+        projects,
+        filteredProjects,
+        searchQuery,
+        setSearchQuery,
+        filterStatus,
+        setFilterStatus,
+        isCreating,
+        setIsCreating,
+        handleCreateProject,
+    } = useDashboardProjects({ initialProjects });
 
-  return (
-    <div className="min-h-screen bg-[#131415] text-[#F2F1ED] flex flex-col justify-between selection:bg-[#FA5089] selection:text-white">
-      <div>
-        <Navbar mode="app" />
+    return (
+        <div className="min-h-screen bg-[#131415] text-[#F2F1ED] flex flex-col justify-between selection:bg-[#FA5089] selection:text-white">
+        <div>
+            <Navbar mode="app" />
 
-        <main className="max-w-5xl mx-auto px-6 py-12 space-y-8">
-          {/* Header Section */}
-          <DashboardHeader
-            userName={userName}
-            workspaceName={workspaceName}
-            mediaHours={mediaHours}
-            projectCount={projects.length}
-            onNewProject={() => setIsCreating(true)}
-          />
+            <main className="max-w-5xl mx-auto px-6 py-12 space-y-8">
+            {/* Header Section */}
+            <DashboardHeader
+                userName={userName}
+                workspaceName={workspaceName}
+                mediaHours={mediaHours}
+                projectCount={projects.length}
+                onNewProject={() => setIsCreating(true)}
+            />
 
-          {/* Inline Create Input Modal/Panel */}
-          <CreateProjectForm
-            isOpen={isCreating}
-            onClose={() => setIsCreating(false)}
-            onCreateProject={handleCreateProject}
-          />
+            {/* Inline Create Input Modal/Panel */}
+            <CreateProjectForm
+                isOpen={isCreating}
+                onClose={() => setIsCreating(false)}
+                onCreateProject={handleCreateProject}
+            />
 
-          {/* Filter & Search Bar */}
-          <DashboardFilters
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            filterStatus={filterStatus}
-            onFilterChange={setFilterStatus}
-          />
+            {/* Filter & Search Bar */}
+            <DashboardFilters
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                filterStatus={filterStatus}
+                onFilterChange={setFilterStatus}
+            />
 
-          {/* Projects Document-Style List */}
-          <ProjectList projects={filteredProjects} />
-        </main>
-      </div>
+            {/* Projects Document-Style List */}
+            <ProjectList projects={filteredProjects} />
+            </main>
+        </div>
 
-      <Footer />
-    </div>
-  );
+        <Footer />
+        </div>
+    );
 }

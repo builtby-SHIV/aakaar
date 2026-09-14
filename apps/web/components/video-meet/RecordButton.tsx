@@ -55,6 +55,12 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
             .createChunk
             .mutationOptions()
     );
+    const updateNumberOfChunks = useMutation(
+        trpc
+            .video
+            .updateNumberOfChunks
+            .mutationOptions()
+    );
     
     const getUploadUrl = useCallback(async (e: BlobEvent, chunkIndex: number) => {
         try {
@@ -95,7 +101,7 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
             if (retriesLeft > 0)
                 return retryUpload(e, chunkIndex, retriesLeft - 1);
             if (idb.current)
-                await idb.current.put("LeftOverChunks", { e, projectId: projectId }, chunkIndex);
+                await idb.current.put("LeftOverChunks", { e, projectId }, chunkIndex);
         }
     }, [getUploadUrl, projectId]);
         
@@ -133,13 +139,23 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                         });
 
                         if (isLastChunk.current)
-                            
+                            updateNumberOfChunks.mutate({
+                                videoId: videoId.current!,
+                                projectId,
+                                expectedChunks: currIndex
+                        });
                     }
 
                     else if (!res.ok || res.status === 400 || res.status === 403)
                     {
                         console.error("Failure during upload process of chunk. Retrying the process", e.data, currIndex);
                         await retryUpload(e, currIndex);
+                        if (isLastChunk.current)
+                            updateNumberOfChunks.mutate({
+                                videoId: videoId.current!,
+                                projectId,
+                                expectedChunks: currIndex
+                        });
                     }
 
                     else if (projectId === null)
@@ -156,7 +172,7 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                 }
             }
         }
-    }, [mediaRecorder, getUploadUrl, addChunk, projectId, retryUpload]);
+    }, [getUploadUrl, projectId, addChunk, updateNumberOfChunks, retryUpload]);
 
     const handleToggleRecording = async () => {
         if (!isRecording) {
@@ -167,6 +183,9 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                 console.log("configuring recording");
                 await configureRecording();
                 startRecordingAndUploading();
+                window.addEventListener('beforeunload', () => {
+                    mediaRecorder.current?.stop(); 
+                });
             } 
             catch (error) {
                 console.error("Failed to start recording:", error);

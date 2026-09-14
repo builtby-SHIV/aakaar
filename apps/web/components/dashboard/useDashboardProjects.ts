@@ -9,17 +9,17 @@ import { notifyTRPCError } from "../../lib/handle-error";
 import { FilterStatus, Project } from "./types";
 
 interface UseDashboardProjectsOptions {
-  initialProjects?: Project[];
+    initialProjects?: Project[];
 }
 
 export function useDashboardProjects(options?: UseDashboardProjectsOptions) {
-  const router = useRouter();
-  const trpc = useTRPC();
-  const { setRoomName, setProjectName } = useMeetingStore((state) => state.actions);
+    const router = useRouter();
+    const trpc = useTRPC();
+    const { setRoomName, setProjectName } = useMeetingStore((state) => state.actions);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
-  const [isCreating, setIsCreating] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
+    const [isCreating, setIsCreating] = useState(false);
 
   // Fetch both owned projects and participated projects from backend
   const projectsQuery = useQuery(trpc.project.listAll.queryOptions());

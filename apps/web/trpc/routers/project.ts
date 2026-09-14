@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../init";
 import { db, projects, projectParticipants, users } from "@repo/database";
 import { withDb } from "@repo/lib/safe-db";
-import { NotFoundError } from "@repo/lib/errors";
+import { ConflictError, NotFoundError } from "@repo/lib/errors";
 import { eq, inArray } from "drizzle-orm";
 
 export const projectRouter = createTRPCRouter({
@@ -14,6 +14,18 @@ export const projectRouter = createTRPCRouter({
         )
         .mutation(async ({ input, ctx }) => {
             const userId = ctx.session.user.id as string;
+
+            const projectExists = await withDb(() => 
+                db
+                    .query
+                    .projects
+                    .findFirst({
+                        where: (projects, { eq }) => eq(projects.name, input.name)
+                    })
+            );
+
+            if (projectExists)
+                throw new ConflictError("Project");
 
             const newProjects = await withDb(() =>
                 db

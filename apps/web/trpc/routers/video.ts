@@ -99,7 +99,7 @@ export const videoRouter = createTRPCRouter({
                         .where(and(...conditions))
                 );
             }),
-        updateNumberofChunks: protectedProcedure
+        updateNumberOfChunks: protectedProcedure
             .input(
                 z
                     .object({
