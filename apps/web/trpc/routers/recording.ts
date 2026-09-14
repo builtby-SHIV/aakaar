@@ -51,12 +51,14 @@ export const recordingRouter = createTRPCRouter({
             if (project.length <= 0)
                 throw new ForbiddenError(`Project "${input.projectId}"`);
 
+            const r2Key = `users/${sessionUserId}/projects/${project[0]?.id}/chunks/${input.chunkIndex}.webm`;
+
             try {
                 const putUrl = await getSignedUrl(
                     s3,
                     new PutObjectCommand({
                         Bucket: "aakaar",
-                        Key: `users/${sessionUserId}/projects/${project[0]?.id}/chunks/${input.chunkIndex}.webm`,
+                        Key: r2Key,
                         ContentType: input.mimeType,
                     }),
                     { expiresIn: 300 },
@@ -65,7 +67,7 @@ export const recordingRouter = createTRPCRouter({
 
                 return { 
                     uploadUrl: putUrl,
-                    r2Key: `users/${sessionUserId}/projects/${project[0]?.id}/chunks/${input.chunkIndex}.webm`
+                    r2Key
                 };
             } 
             catch (error) {
