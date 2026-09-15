@@ -99,21 +99,44 @@ export const videoRouter = createTRPCRouter({
                         .where(and(...conditions))
                 );
             }),
-        updateNumberOfChunks: protectedProcedure
+        updateChunkMetaData: protectedProcedure
             .input(
                 z
                     .object({
                         projectId: z.number(),
                         videoId: z.number(),
-                        expectedChunks: z.number().nonnegative()
+                        expectedChunks: z.number().nonnegative().optional(),
+                        status: z.enum([
+                            "recording", 
+                            "pending_stitch", 
+                            "stitching", 
+                            "done", 
+                            "incomplete", 
+                            "none"
+                        ])
+                        .optional()
+                    })
+                    .refine((data) => {
+                        return ( 
+                            data.status !== undefined || 
+                            data.expectedChunks !== undefined
+                        )
+                    }, 
+                    {
+                        message: "Either 'status' or 'expected number of chunks' should be present.",
+                        path: ["name"]
                     })
             )
             .mutation(async ({ input, ctx }) => {
                 await assertProjectAccess(input.projectId, ctx.session.user.id as string);
+                const updatePayload = {
+                    status: input.status,
+                    expectedChunks: input.expectedChunks,
+                };
                 await withDb(() =>
                     db
                     .update(videos)
-                    .set({ expectedChunks: input.expectedChunks })
+                    .set(updatePayload)
                     .where(
                         eq(videos.id, input.videoId)
                     )

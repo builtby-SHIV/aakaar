@@ -55,10 +55,10 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
             .createChunk
             .mutationOptions()
     );
-    const updateNumberOfChunks = useMutation(
+    const updateChunkMetaData = useMutation(
         trpc
             .video
-            .updateNumberOfChunks
+            .updateChunkMetaData
             .mutationOptions()
     );
     
@@ -79,7 +79,6 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
     }, [projectId, session?.user?.id, uploadUrl]);
 
     const retryUpload = useCallback(async (e: BlobEvent, chunkIndex: number, retriesLeft = 5) => {
-
         const data = await getUploadUrl(e, chunkIndex);
         if (!data)
             throw new ExternalServiceError("Cloudflare", {
@@ -95,15 +94,24 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                 }});
 
             if (!res.ok)
-                console.error("Failure during upload process of chunk", e.data, chunkIndex);
+                throw new Error(`Upload failed ${res.status}`);
+
+            addChunk.mutate({
+                videoId: videoId.current!,
+                chunkIndex: chunkIndex,
+                r2Key: data.r2Key,
+                byteSize: e.data.size
+            });
+            console.log(chunkIndex);
         }
         catch(err) {
+            console.log("Error while retrying" + err);
             if (retriesLeft > 0)
                 return retryUpload(e, chunkIndex, retriesLeft - 1);
             if (idb.current)
                 await idb.current.put("LeftOverChunks", { e, projectId }, chunkIndex);
         }
-    }, [getUploadUrl, projectId]);
+    }, [addChunk, getUploadUrl, projectId]);
         
     const startRecordingAndUploading = useCallback(() => {
         if (mediaRecorder.current) {
@@ -115,7 +123,6 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                 const currIndex = chunkIndex.current++;
 
                 const data = await getUploadUrl(e, currIndex);
-                console.log(data);
                 if (!data)
                     throw new ExternalServiceError("Cloudflare", {
                             clientMessage: "Recording cannot be done. Please try again later"
@@ -137,13 +144,15 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                             r2Key: data.r2Key,
                             byteSize: e.data.size
                         });
+                        console.log(currIndex);
 
                         if (isLastChunk.current)
-                            updateNumberOfChunks.mutate({
+                            updateChunkMetaData.mutate({
                                 videoId: videoId.current!,
                                 projectId,
-                                expectedChunks: currIndex
-                        });
+                                expectedChunks: currIndex+1,
+                                status: "pending_stitch"
+                            });
                     }
 
                     else if (!res.ok || res.status === 400 || res.status === 403)
@@ -151,10 +160,11 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                         console.error("Failure during upload process of chunk. Retrying the process", e.data, currIndex);
                         await retryUpload(e, currIndex);
                         if (isLastChunk.current)
-                            updateNumberOfChunks.mutate({
+                            updateChunkMetaData.mutate({
                                 videoId: videoId.current!,
                                 projectId,
-                                expectedChunks: currIndex
+                                expectedChunks: currIndex+1,
+                                status: "pending_stitch"
                         });
                     }
 
@@ -172,7 +182,7 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                 }
             }
         }
-    }, [getUploadUrl, projectId, addChunk, updateNumberOfChunks, retryUpload]);
+    }, [getUploadUrl, projectId, addChunk, updateChunkMetaData, retryUpload]);
 
     const handleToggleRecording = async () => {
         if (!isRecording) {
@@ -193,13 +203,14 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
             }
         } 
         else {
-            onStop?.();
-            // setIsRecording(false);
-
+            // onStop?.();
+            
             if (mediaRecorder.current && mediaRecorder.current.state !== 'inactive') {
                 // mediaRecorder.current.requestData();
                 mediaRecorder.current.stop();
                 isLastChunk.current = true;
+                setIsRecording(false);
+                console.log(isRecording);
                 // mediaRecorder.current = null;
                 // chunkIndex.current = 0;
             }

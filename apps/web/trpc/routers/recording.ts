@@ -62,7 +62,6 @@ export const recordingRouter = createTRPCRouter({
                     }),
                     { expiresIn: 300 },
                 );
-                console.log(putUrl);
 
                 return { 
                     uploadUrl: putUrl,
