@@ -15,7 +15,7 @@ export const ProjectParticipantAvatars: React.FC<ProjectParticipantAvatarsProps>
         <div
           key={`${part}-${idx}`}
           title={part}
-          className="w-5 h-5 rounded-full bg-[#141413] text-[#F7F6F2] border border-[#FFFFFF] flex items-center justify-center text-[9px] font-mono"
+          className="w-5 h-5 rounded-full bg-[#FA5089] text-white border border-[#1A1B1D] flex items-center justify-center text-[9px] font-mono"
         >
           {part.charAt(0)}
         </div>

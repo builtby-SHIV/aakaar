@@ -3,38 +3,41 @@
 @source "../../../packages/ui/src";
 
 @theme {
-  --color-background: #F7F6F2;
-  --color-foreground: #141413;
-  --color-surface: #FFFFFF;
-  --color-surface-hover: #F2F0EB;
-  --color-surface-subtle: #EFECE6;
-  --color-muted: #7A7870;
-  --color-muted-light: #A3A199;
-  --color-border: #E5E3DC;
-  --color-border-strong: #D1CEC5;
-  --color-primary: #141413;
-  --color-primary-foreground: #F7F6F2;
-  --color-accent: #E54D2E;
-  --color-accent-subtle: #FDF2F0;
-  --color-rec: #E53E3E;
-  --color-rec-subtle: #FFF1F0;
-  --color-success: #2B7A4B;
+  --color-background: #131415;
+  --color-foreground: #F2F1ED;
+  --color-surface: #1A1B1D;
+  --color-surface-hover: #242628;
+  --color-surface-elevated: #2C2E30;
+  --color-muted: #8B8D90;
+  --color-muted-light: #A0A2A5;
+  --color-border: #2E3033;
+  --color-border-strong: #38393C;
+  --color-primary: #FA5089;
+  --color-primary-foreground: #FFFFFF;
+  --color-accent: #FA5089;
+  --color-accent-subtle: rgba(250, 80, 137, 0.12);
+  --color-rec: #EF4444;
+  --color-rec-subtle: rgba(239, 68, 68, 0.15);
+  --color-success: #10B981;
 
-  --font-serif: var(--font-editorial-serif), Georgia, serif;
   --font-sans: var(--font-sans-grotesk), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 :root {
-  --bg-kanso: #F7F6F2;
-  --text-kanso: #141413;
-  --muted-kanso: #7A7870;
-  --border-kanso: #E5E3DC;
+  --bg-primary: #131415;
+  --bg-surface: #1A1B1D;
+  --bg-elevated: #242628;
+  --text-primary: #F2F1ED;
+  --text-secondary: #8B8D90;
+  --border-subtle: #2E3033;
+  --border-medium: #38393C;
+  --accent-mux: #FA5089;
 }
 
 body {
-  background-color: #F7F6F2;
-  color: #141413;
+  background-color: #131415;
+  color: #F2F1ED;
   font-family: var(--font-sans);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
@@ -42,63 +45,67 @@ body {
 }
 
 ::selection {
-  background: #141413;
-  color: #F7F6F2;
+  background: #FA5089;
+  color: #FFFFFF;
 }
 
-/* Subtle custom scrollbar */
+/* Dark technical scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #131415;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D1CEC5;
-  border-radius: 9999px;
+  background: #2E3033;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #A3A199;
+  background: #38393C;
 }
 
-/* Tabular numbers for timers and waveforms */
-.num-tabular {
-  font-variant-numeric: tabular-nums;
-  font-family: var(--font-mono);
-}
-
-/* Pulse animation for recording state */
-@keyframes recPulse {
+/* Keyframe animations */
+@keyframes rec-pulse {
   0%, 100% {
     opacity: 1;
     transform: scale(1);
   }
   50% {
-    opacity: 0.35;
+    opacity: 0.4;
     transform: scale(0.92);
   }
 }
 
+@keyframes grid-glow {
+  0%, 100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
 .animate-rec-pulse {
-  animation: recPulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: rec-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Subtle fade in for modals and floating panels */
-@keyframes kansoFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.animate-grid-glow {
+  animation: grid-glow 8s ease-in-out infinite;
 }
 
-.animate-kanso-fade {
-  animation: kansoFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+/* Technical grid background utility */
+.tech-grid {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(46, 48, 51, 0.35) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(46, 48, 51, 0.35) 1px, transparent 1px);
+}
+
+.tech-dots {
+  background-size: 24px 24px;
+  background-image: radial-gradient(circle, rgba(139, 141, 144, 0.2) 1px, transparent 1px);
 }

@@ -14,40 +14,44 @@ export function Logo({ size = "md", showTagline = false, href = "/", className =
   const iconSizes = {
     sm: "w-5 h-5",
     md: "w-6 h-6",
-    lg: "w-8 h-8",
+    lg: "w-7 h-7",
   };
 
   const textSizes = {
     sm: "text-sm",
-    md: "text-base",
-    lg: "text-xl",
+    md: "text-base font-semibold",
+    lg: "text-lg font-bold",
   };
 
   const content = (
     <div className={`flex items-center gap-2.5 group select-none ${className}`}>
-      {/* Bespoke Kanso Geometric Glyph for Aakaar (Form & Structure) */}
-      <div className={`${iconSizes[size]} relative flex items-center justify-center`}>
+      {/* Technical Mux-inspired Geometric Glyph */}
+      <div className={`${iconSizes[size]} relative flex items-center justify-center shrink-0`}>
         <svg
-          viewBox="0 0 32 32"
+          viewBox="0 0 28 28"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full text-[#141413] transition-transform duration-300 group-hover:scale-95"
+          className="w-full h-full transition-transform duration-200 group-hover:scale-105"
         >
-          {/* Architectural minimal frame representing raw recording + refined shape */}
-          <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="2.2" />
-          <rect x="10" y="10" width="12" height="12" rx="2" fill="currentColor" />
-          <circle cx="16" cy="16" r="2.5" fill="#F7F6F2" />
+          <rect width="28" height="28" rx="6" fill="#1A1B1D" stroke="#2E3033" strokeWidth="1" />
+          <path
+            d="M7 14L11 8H17L21 14L17 20H11L7 14Z"
+            stroke="#F2F1ED"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+          />
+          <circle cx="14" cy="14" r="2.5" fill="#FA5089" />
         </svg>
       </div>
 
-      {/* Brand Wordmark */}
-      <div className="flex items-baseline gap-1.5">
-        <span className={`font-serif tracking-tight font-medium text-[#141413] ${textSizes[size]}`}>
+      {/* Brand Wordmark & Technical Version Badge */}
+      <div className="flex items-center gap-2">
+        <span className={`tracking-[-0.03em] text-[#F2F1ED] font-sans ${textSizes[size]}`}>
           Aakaar
         </span>
         {showTagline && (
-          <span className="text-[10px] uppercase tracking-widest font-mono text-[#7A7870]">
-            Studio
+          <span className="text-[9px] uppercase tracking-widest font-mono text-[#8B8D90] px-1.5 py-0.5 rounded bg-[#242628] border border-[#2E3033]">
+            STUDIO
           </span>
         )}
       </div>
@@ -55,7 +59,7 @@ export function Logo({ size = "md", showTagline = false, href = "/", className =
   );
 
   if (href) {
-    return <Link href={href}>{content}</Link>;
+    return <Link href={href} className="inline-flex items-center">{content}</Link>;
   }
 
   return content;

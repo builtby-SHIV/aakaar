@@ -2,7 +2,14 @@
     "name": "@repo/database",
     "version": "0.0.0",
     "private": true,
-    "main": "./src/drizzle.ts",
+    "main": "./src/index.ts",
+    "exports": {
+        ".": "./src/index.ts",
+        "./schema": "./src/schema.ts",
+        "./relations": "./src/relations.ts",
+        "./drizzle": "./src/drizzle.ts",
+        "./*": "./src/*.ts"
+    },
     "scripts": {
         "db:generate": "drizzle-kit generate",
         "db:migrate": "tsx src/migrate.ts",
