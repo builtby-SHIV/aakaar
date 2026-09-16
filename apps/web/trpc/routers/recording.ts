@@ -17,6 +17,7 @@ export const recordingRouter = createTRPCRouter({
             z.object({
                 userId: z.string(),
                 projectId: z.number(),
+                videoId: z.number(),
                 chunkIndex: z.number(),
                 mimeType: z.string(),
             }),
@@ -34,15 +35,15 @@ export const recordingRouter = createTRPCRouter({
                 .leftJoin(
                     projectParticipants,
                     eq(
-                        projectParticipants.projectId,
-                        projects.id
+                        projects.id,
+                        projectParticipants.projectId
                     )
                 )
                 .where(and(
                     eq(projects.id, input.projectId),
                     or(
                         eq(projects.userId, input.userId),
-                        eq(projects.userId, input.userId)
+                        eq(projectParticipants.userId, input.userId)
                     )
                 ))
             );
@@ -50,7 +51,7 @@ export const recordingRouter = createTRPCRouter({
             if (project.length <= 0)
                 throw new ForbiddenError(`Project "${input.projectId}"`);
 
-            const r2Key = `users/${sessionUserId}/projects/${project[0]?.id}/chunks/${input.chunkIndex}.webm`;
+            const r2Key = `users/${sessionUserId}/projects/${project[0]?.id}/videos/${input.videoId}/chunks/${input.chunkIndex}.webm`;
 
             try {
                 const putUrl = await getSignedUrl(

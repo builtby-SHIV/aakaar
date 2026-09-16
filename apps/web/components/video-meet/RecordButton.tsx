@@ -22,11 +22,13 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
     const trpc = useTRPC();
     const { data: session } = useSession();
     const [isRecording, setIsRecording] = useState(false);
+
     const chunkIndex = useRef<number>(0);
-    const isLastChunk = useRef<boolean>(false);
-    const idb = useRef<IDBPDatabase | null>(null);
     const videoId = useRef<number | null>(null);
+    const idb = useRef<IDBPDatabase | null>(null);
+    const pendingUploads = useRef(new Set<Promise<void>>());
     const mediaRecorder = useRef<MediaRecorder | null>(null);
+
     const { localParticipant } = useLocalParticipant();
     const { projectName } = useMeetingStore(useShallow((state) => ({ 
         projectName: state.projectName
@@ -67,6 +69,7 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
             const url = await uploadUrl.mutateAsync({
                 userId: session?.user?.id || "",
                 projectId,
+                videoId: videoId.current!,
                 chunkIndex,
                 mimeType: e.data.type
             });
@@ -77,122 +80,78 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
             console.error("Upload URL generation failed" + e);
         }
     }, [projectId, session?.user?.id, uploadUrl]);
-
-    const retryUpload = useCallback(async (e: BlobEvent, chunkIndex: number, retriesLeft = 5) => {
-        const data = await getUploadUrl(e, chunkIndex);
-        if (!data)
-            throw new ExternalServiceError("Cloudflare", {
-                    clientMessage: "Recording cannot be done. Please try again later"
-                });
-
+        
+    const uploadChunk = useCallback(async (e: BlobEvent, currIndex: number, retriesLeft = 5) => {
         try {
+            const data = await getUploadUrl(e, currIndex);
+            if (!data)
+                throw new ExternalServiceError("Cloudflare", {
+                        clientMessage: "Recording cannot be done. Please try again later"
+                    });
+
             const res = await fetch(data.uploadUrl, { 
                 method: 'PUT', 
                 body: e.data, 
                 headers: { 
                     'Content-Length': e.data.size.toString() 
-                }});
+            }});
 
-            if (!res.ok)
-                throw new Error(`Upload failed ${res.status}`);
-
-            addChunk.mutate({
-                videoId: videoId.current!,
-                chunkIndex: chunkIndex,
-                r2Key: data.r2Key,
-                byteSize: e.data.size
-            });
-            console.log(chunkIndex);
-        }
-        catch(err) {
-            console.log("Error while retrying" + err);
-            if (retriesLeft > 0)
-                return retryUpload(e, chunkIndex, retriesLeft - 1);
-            if (idb.current)
-                await idb.current.put("LeftOverChunks", { e, projectId }, chunkIndex);
-        }
-    }, [addChunk, getUploadUrl, projectId]);
-        
-    const startRecordingAndUploading = useCallback(() => {
-        if (mediaRecorder.current) {
-            mediaRecorder.current.start(10000);
-            mediaRecorder.current.ondataavailable = async (e: BlobEvent) => {
-                if (e.data.size <= 0)
-                    return;
-
-                const currIndex = chunkIndex.current++;
-
-                const data = await getUploadUrl(e, currIndex);
-                if (!data)
-                    throw new ExternalServiceError("Cloudflare", {
-                            clientMessage: "Recording cannot be done. Please try again later"
-                        });
-
+            if (res.ok)
+            {
                 try {
-                    const res = await fetch(data.uploadUrl, { 
-                        method: 'PUT', 
-                        body: e.data, 
-                        headers: { 
-                            'Content-Length': e.data.size.toString() 
-                    }});
-
-                    if (res.ok)
-                    {
-                        addChunk.mutate({
-                            videoId: videoId.current!,
-                            chunkIndex: currIndex,
-                            r2Key: data.r2Key,
-                            byteSize: e.data.size
-                        });
-                        console.log(currIndex);
-
-                        if (isLastChunk.current)
-                            updateChunkMetaData.mutate({
-                                videoId: videoId.current!,
-                                projectId,
-                                expectedChunks: currIndex+1,
-                                status: "pending_stitch"
-                            });
-                    }
-
-                    else if (!res.ok || res.status === 400 || res.status === 403)
-                    {
-                        console.error("Failure during upload process of chunk. Retrying the process", e.data, currIndex);
-                        await retryUpload(e, currIndex);
-                        if (isLastChunk.current)
-                            updateChunkMetaData.mutate({
-                                videoId: videoId.current!,
-                                projectId,
-                                expectedChunks: currIndex+1,
-                                status: "pending_stitch"
-                        });
-                    }
-
-                    else if (projectId === null)
-                        throw new ExternalServiceError("PgSQL", {
-                            clientMessage: "Recording cannot be done. Please try again later"
-                        });
-
-                }
-                catch(e) {
-                    console.error(e)
-                    throw new ExternalServiceError("Cloudflare", {
-                        clientMessage: "Recording cannot be done. Please try again later"
+                    await addChunk.mutateAsync({
+                        videoId: videoId.current!,
+                        chunkIndex: currIndex,
+                        r2Key: data.r2Key,
+                        byteSize: e.data.size
                     });
                 }
+                catch (e) {
+                    console.log("adding chunk to data to db failed" + e);
+                    throw new DatabaseError();
+                }
+                
+                console.log(currIndex);                   
             }
+            else if (projectId === null)
+                throw new ExternalServiceError("PgSQL", {
+                    clientMessage: "Recording cannot be done. Please try again later"
+                });
+            else
+                throw new Error("upload failure");
+    }
+        catch(err) {
+            if (retriesLeft > 0)
+                return uploadChunk(e, currIndex, retriesLeft - 1);
+            if (idb.current)
+                await idb.current.put("LeftOverChunks", { e, projectId }, currIndex);
         }
-    }, [getUploadUrl, projectId, addChunk, updateChunkMetaData, retryUpload]);
+
+    }, [getUploadUrl, projectId, addChunk]);
 
     const handleToggleRecording = async () => {
         if (!isRecording) {
             setIsRecording(true);
             onStart?.();
+            chunkIndex.current = 0;
+            videoId.current = null;
             
             try {
                 console.log("configuring recording");
                 await configureRecording();
-                startRecordingAndUploading();
+                if (mediaRecorder.current) {
+                    mediaRecorder.current.start(10000);
+                    mediaRecorder.current.ondataavailable = async (e: BlobEvent) => {
+                        if (e.data.size <= 0)
+                            return;
+                        const currIndex = chunkIndex.current++;
+                        const upload = uploadChunk(e, currIndex)
+                            .catch((e) => console.error("Upload failed" + e))
+                            .finally(() => pendingUploads.current.delete(upload));
+                        pendingUploads.current.add(upload);
+                    }           
+                }
+        
                 window.addEventListener('beforeunload', () => {
                     mediaRecorder.current?.stop(); 
                 });
@@ -206,13 +165,19 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
             // onStop?.();
             
             if (mediaRecorder.current && mediaRecorder.current.state !== 'inactive') {
-                // mediaRecorder.current.requestData();
-                mediaRecorder.current.stop();
-                isLastChunk.current = true;
-                setIsRecording(false);
-                console.log(isRecording);
-                // mediaRecorder.current = null;
-                // chunkIndex.current = 0;
+                mediaRecorder.current.stop = async () => {
+                    await Promise.all([...pendingUploads.current]);
+                    updateChunkMetaData.mutate({
+                        videoId: videoId.current!,
+                        projectId,
+                        expectedChunks: chunkIndex.current + 1,
+                        status: "pending_stitch"
+                    });
+                    setIsRecording(false);
+                    console.log(isRecording);
+                    mediaRecorder.current = null;
+                    chunkIndex.current = 0;
+                }
             }
         }
     };

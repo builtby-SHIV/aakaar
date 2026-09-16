@@ -1,7 +1,7 @@
 import z from "zod";
 import { createTRPCRouter, protectedProcedure } from "../init";
 import { withDb } from "@repo/lib/safe-db";
-import { db, videos } from "@repo/database";
+import { db, projects, videos } from "@repo/database";
 import { and, eq, type SQL } from "drizzle-orm";
 import { assertProjectAccess } from "./assertproject-access";
 
@@ -138,7 +138,10 @@ export const videoRouter = createTRPCRouter({
                     .update(videos)
                     .set(updatePayload)
                     .where(
-                        eq(videos.id, input.videoId)
+                        and(
+                            eq(videos.id, input.videoId),
+                            eq(projects.id, input.projectId)
+                        )
                     )
                 )
             })

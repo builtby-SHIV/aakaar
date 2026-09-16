@@ -155,7 +155,8 @@ export function LobbyPreview({
                     track.enabled = audio;
                 });
                 setAudioStreamReady(true);
-            } catch (err) {
+            } 
+            catch (err) {
                 console.error("Error accessing audio device:", err);
             }
         }
@@ -248,15 +249,15 @@ export function LobbyPreview({
     };
 
     return (
-        <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-6 animate-fade text-[#F2F1ED]">
+        <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-6 animate-fade text-foreground">
             {/* Video Preview Canvas */}
             <div 
                 className="relative 
                     aspect-video 
                     w-full overflow-hidden 
                     rounded-2xl border 
-                    border-[#2E3033] 
-                    bg-[#131415] 
+                    border-border 
+                    bg-background 
                     shadow-2xl flex 
                     items-center 
                     justify-center">
@@ -269,16 +270,16 @@ export function LobbyPreview({
                         className="h-full w-full object-cover transform-[scaleX(-1)]"
                     />
                 ) : (
-                    <div className="text-center space-y-2 text-[#8B8D90]">
+                    <div className="text-center space-y-2 text-muted">
                         <div 
                             className="w-16 h-16 
                                 rounded-full 
-                                bg-[#1A1B1D] 
+                                bg-surface 
                                 border 
-                                border-[#2E3033] 
+                                border-border 
                                 flex items-center 
                                 justify-center 
-                                text-[#8B8D90] 
+                                text-muted 
                                 mx-auto"
                             >
                             <VideoOff className="w-6 h-6" />
