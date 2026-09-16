@@ -1,7 +1,9 @@
 {
   "name": "@repo/lib",
   "private": true,
+  "main": "./src/index.ts",
   "exports": {
+    ".": "./src/index.ts",
     "./*": "./src/*.ts"
   },
   "scripts": {

@@ -7,4 +7,7 @@ export * from "./InteractiveEditorDemoSection";
 export * from "./EditorialCaptionsSection";
 export * from "./DirectExportSection";
 export * from "./CtaSection";
+export * from "./DataStatsSection";
+export * from "./StackIntegrationsSection";
+export * from "./TestimonialsSection";
 export * from "./LandingView";

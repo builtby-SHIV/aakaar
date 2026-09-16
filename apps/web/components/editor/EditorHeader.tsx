@@ -19,11 +19,11 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
   onExport,
 }) => {
   return (
-    <header className="h-14 px-6 border-b border-[#E5E3DC] bg-[#FFFFFF] flex items-center justify-between z-30 shrink-0">
+    <header className="h-14 px-6 border-b border-[#2E3033] bg-[#1A1B1D] flex items-center justify-between z-30 shrink-0">
       <div className="flex items-center gap-4">
         <Link
           href="/dashboard"
-          className="p-1.5 rounded-md text-[#7A7870] hover:text-[#141413] hover:bg-[#F2F0EB] transition-colors"
+          className="p-1.5 rounded-md text-[#8B8D90] hover:text-[#F2F1ED] hover:bg-[#242628] transition-colors"
           title="Back to Projects"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -31,11 +31,11 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
 
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-[#141413]">
+            <span className="text-xs font-medium text-[#F2F1ED]">
               {projectId.toUpperCase()} — Spatial Audio & Local First
               Architecture
             </span>
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700">
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-950/50 text-emerald-400 border border-emerald-500/20">
               1080p Synced
             </span>
           </div>
@@ -43,14 +43,14 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
       </div>
 
       {/* Center: Aspect Ratio & Layout Preset */}
-      <div className="flex items-center gap-1.5 bg-[#FAF9F6] border border-[#E5E3DC] p-1 rounded-lg">
+      <div className="flex items-center gap-1.5 bg-[#1A1B1D] border border-[#2E3033] p-1 rounded-lg">
         <button
           type="button"
           onClick={() => onAspectRatioChange("16:9")}
           className={`px-3 py-1 rounded text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
             aspectRatio === "16:9"
-              ? "bg-[#141413] text-[#F7F6F2] shadow-2xs"
-              : "text-[#7A7870] hover:text-[#141413]"
+              ? "bg-[#FA5089] text-white shadow-2xs"
+              : "text-[#8B8D90] hover:text-[#F2F1ED]"
           }`}
         >
           <Video className="w-3.5 h-3.5" />
@@ -62,8 +62,8 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
           onClick={() => onAspectRatioChange("9:16")}
           className={`px-3 py-1 rounded text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
             aspectRatio === "9:16"
-              ? "bg-[#141413] text-[#F7F6F2] shadow-2xs"
-              : "text-[#7A7870] hover:text-[#141413]"
+              ? "bg-[#FA5089] text-white shadow-2xs"
+              : "text-[#8B8D90] hover:text-[#F2F1ED]"
           }`}
         >
           <Smartphone className="w-3.5 h-3.5" />
@@ -75,8 +75,8 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
           onClick={() => onAspectRatioChange("1:1")}
           className={`px-3 py-1 rounded text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
             aspectRatio === "1:1"
-              ? "bg-[#141413] text-[#F7F6F2] shadow-2xs"
-              : "text-[#7A7870] hover:text-[#141413]"
+              ? "bg-[#FA5089] text-white shadow-2xs"
+              : "text-[#8B8D90] hover:text-[#F2F1ED]"
           }`}
         >
           <Square className="w-3.5 h-3.5" />
@@ -89,7 +89,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
         <button
           type="button"
           onClick={onExport}
-          className="px-4 py-2 bg-[#141413] text-[#F7F6F2] rounded-md text-xs font-medium hover:bg-[#2B2A27] transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+          className="px-4 py-2 bg-[#FA5089] text-white rounded-md text-xs font-medium hover:bg-[#E8457B] transition-all flex items-center gap-2 shadow-sm cursor-pointer"
         >
           <Download className="w-3.5 h-3.5" />
           <span>Export Master</span>

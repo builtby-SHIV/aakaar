@@ -1,37 +1,44 @@
-import { ArrowRight } from "lucide-react";
-import Link from "next/link";
+"use client";
+
 import React from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 export const CtaSection: React.FC = () => {
   return (
-    <section className="py-32 border-t border-[#E5E3DC] bg-[#F7F6F2] text-center">
-      <div className="max-w-4xl mx-auto px-6 space-y-8">
-        <span className="text-xs uppercase font-mono tracking-widest text-[#7A7870]">
-          The Next Generation Studio
-        </span>
-        <h2 className="text-5xl sm:text-7xl font-serif font-normal tracking-tight text-[#141413] leading-[1.06]">
+    <section className="py-36 border-t border-[#2E3033] bg-[#131415] text-[#F2F1ED] text-center relative overflow-hidden">
+      {/* Subtle background ambient radial glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#FA5089]/10 blur-[140px] pointer-events-none" />
+
+      <div className="relative z-10 max-w-4xl mx-auto px-6 space-y-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#2E3033] bg-[#1A1B1D] text-xs font-mono text-[#8B8D90]">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span>ZERO_INSTALL_IN_BROWSER</span>
+        </div>
+
+        <h2 className="text-5xl sm:text-7xl lg:text-8xl font-sans font-extrabold tracking-[-0.04em] text-[#F2F1ED] leading-[0.98]">
           Your next episode <br />
-          <span className="italic text-[#7A7870]">starts here.</span>
+          <span className="text-[#8B8D90] font-normal">starts here.</span>
         </h2>
-        <p className="text-base sm:text-lg text-[#7A7870] max-w-xl mx-auto leading-relaxed">
-          Record together in pristine local quality. Edit and publish without
-          leaving the tab.
+
+        <p className="text-base sm:text-lg text-[#8B8D90] max-w-lg mx-auto font-normal leading-relaxed">
+          Record together in pristine local quality. Edit, reframe, and publish without leaving the browser tab.
         </p>
 
         <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             href="/video-meet"
-            className="w-full sm:w-auto px-8 py-4 bg-[#141413] text-[#F7F6F2] font-medium text-sm rounded-lg hover:bg-[#2B2A27] transition-all flex items-center justify-center gap-2 shadow-sm"
+            className="w-full sm:w-auto px-8 py-4 bg-[#FA5089] hover:bg-[#E03F74] text-white font-medium text-xs font-mono rounded-md transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#FA5089]/25 group"
           >
-            <span>Start recording studio now</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>START RECORDING</span>
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
 
           <Link
-            href="/video-meet"
-            className="w-full sm:w-auto px-6 py-4 border border-[#E5E3DC] bg-[#FFFFFF] hover:bg-[#F2F0EB] text-[#141413] font-medium text-sm rounded-lg transition-all"
+            href="/dashboard"
+            className="w-full sm:w-auto px-6 py-4 border border-[#2E3033] bg-[#1A1B1D] hover:bg-[#242628] text-[#F2F1ED] font-medium text-xs font-mono rounded-md transition-all"
           >
-            Open Studio Lobby
+            OPEN WORKSPACE
           </Link>
         </div>
       </div>

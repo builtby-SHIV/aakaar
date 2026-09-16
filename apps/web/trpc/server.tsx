@@ -15,7 +15,7 @@ export const trpc = createTRPCOptionsProxy({
     ctx: async () =>
         createTRPCContext({
         headers: await headers(),
-        }),
+    }),
     router: appRouter,
     queryClient: getQueryClient,
 });

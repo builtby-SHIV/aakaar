@@ -37,7 +37,7 @@ export function StudioView({ roomId }: StudioViewProps) {
   } = useStudioRecording();
 
   return (
-    <div className="h-screen w-screen bg-[#141413] text-[#F7F6F2] flex flex-col justify-between overflow-hidden select-none">
+    <div className="h-screen w-screen bg-[#131415] text-[#F2F1ED] flex flex-col justify-between overflow-hidden select-none">
       {/* 1. STUDIO HEADER */}
       <StudioHeader
         roomId={roomId}
