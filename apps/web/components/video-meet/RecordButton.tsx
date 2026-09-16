@@ -124,7 +124,7 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
             if (retriesLeft > 0)
                 return uploadChunk(e, currIndex, retriesLeft - 1);
             if (idb.current)
-                await idb.current.put("LeftOverChunks", { e, projectId }, currIndex);
+                await idb.current.put("LeftOverChunks", { data: e.data, size: e.data.size, projectId }, currIndex);
         }
 
     }, [getUploadUrl, projectId, addChunk]);
@@ -165,19 +165,20 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
             // onStop?.();
             
             if (mediaRecorder.current && mediaRecorder.current.state !== 'inactive') {
-                mediaRecorder.current.stop = async () => {
+                mediaRecorder.current.onstop = async () => {
                     await Promise.all([...pendingUploads.current]);
                     updateChunkMetaData.mutate({
                         videoId: videoId.current!,
                         projectId,
-                        expectedChunks: chunkIndex.current + 1,
+                        expectedChunks: chunkIndex.current,
                         status: "pending_stitch"
                     });
                     setIsRecording(false);
                     console.log(isRecording);
                     mediaRecorder.current = null;
                     chunkIndex.current = 0;
-                }
+                };
+                mediaRecorder.current.stop();
             }
         }
     };
