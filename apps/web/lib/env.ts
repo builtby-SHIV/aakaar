@@ -11,7 +11,9 @@ const EnvSchema = z.object({
     DATABASE_URL: z.url().nonempty(),
     ACCESS_KEY_ID: z.string().nonempty(),
     SECRET_ACCESS_KEY: z.string().nonempty(),
-    S3_API: z.url().nonempty()
+    S3_API: z.url().nonempty(),
+    REDIS_URL: z.url().nonempty(),
+    NODE_ENV: z.enum(["development", "production"])
 });
 
 export const ENV = EnvSchema.parse(process.env);

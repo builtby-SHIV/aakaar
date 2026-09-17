@@ -4,6 +4,7 @@ import { withDb } from "@repo/lib/safe-db";
 import { db, projects, videos } from "@repo/database";
 import { and, eq, type SQL } from "drizzle-orm";
 import { assertProjectAccess } from "./assertproject-access";
+import { getRedisConnection } from "../../lib/redis";
 
 export const videoRouter = createTRPCRouter({
     createVideo: protectedProcedure
@@ -144,5 +145,17 @@ export const videoRouter = createTRPCRouter({
                         )
                     )
                 )
+            }),
+        produceVideoJob: protectedProcedure
+            .input(
+                z.object({
+                    videoId: z.number(),
+                    projectId: z.number()
+                })
+            )
+            .mutation(async ({ input, ctx }) => {
+                await assertProjectAccess(input.projectId, ctx.session.user.id as string);
+                const redis = await getRedisConnection();
+                await redis.xAdd('videos', '*', { videoId: input.videoId.toString() });
             })
     })

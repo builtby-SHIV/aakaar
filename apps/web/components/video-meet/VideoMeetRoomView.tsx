@@ -182,6 +182,7 @@ export function VideoMeetRoomView() {
                             <li>Local audio and video tracks are being captured directly from your connected devices.</li>
                             <li>Do not refresh or navigate away from the page until you click &quot;Stop Recording&quot;.</li>
                             <li>End the meeting after clicking &apos;Stop Recording&apos;.</li>
+                            <li>Once the recording is stopped, do not close the browser tab for at least 5 minutes.</li>
                             <li>All participant tracks will be isolated and synced for export and editing.</li>
                         </ul>
                     </div>

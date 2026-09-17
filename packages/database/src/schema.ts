@@ -105,7 +105,6 @@ export const videos = pgTable("videos", {
         .notNull()
         .default("none"),
     expectedChunks: integer("expected_chunks"),
-    finalKey: text("final_key"),
     createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 }, (table) => [
         uniqueIndex("video_name_idx").on(table.name, table.projectId),
