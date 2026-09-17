@@ -179,7 +179,8 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                         expectedChunks: chunkIndex.current,
                         status: "pending_stitch"
                     });
-                    publishJob.mutate({ 
+                    publishJob.mutate({
+                        projectId: projectId, 
                         videoId: videoId.current!
                     });
                     setIsRecording(false);
