@@ -1,7 +1,6 @@
 import { createClient } from 'redis';
 import { ENV } from './env';
 
-
 const globalForRedis = global as unknown as { redisClient: ReturnType<typeof createClient> }
 
 

@@ -15,7 +15,7 @@ export async function googleLogOut (formData: FormData) {
         await signOut({redirectTo: '/'});
 }
 
-export async function addToRedisStream (videoId: number) {
-    const client = await getRedisConnection();
-    client.xAdd('videos', '*', { videoId: videoId.toString() });
-}
+// export async function addToRedisStream (videoId: number) {
+//     const client = await getRedisConnection();
+//     client.xAdd('videos', '*', { videoId: videoId.toString() });
+// }
