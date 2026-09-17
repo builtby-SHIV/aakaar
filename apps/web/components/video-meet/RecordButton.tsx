@@ -63,6 +63,12 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
             .updateChunkMetaData
             .mutationOptions()
     );
+    const publishJob = useMutation(
+        trpc
+            .video
+            .produceVideoJob
+            .mutationOptions()
+    );
     
     const getUploadUrl = useCallback(async (e: BlobEvent, chunkIndex: number) => {
         try {
@@ -172,6 +178,9 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                         projectId,
                         expectedChunks: chunkIndex.current,
                         status: "pending_stitch"
+                    });
+                    publishJob.mutate({ 
+                        videoId: videoId.current!
                     });
                     setIsRecording(false);
                     console.log(isRecording);
