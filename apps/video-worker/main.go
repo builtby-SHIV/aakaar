@@ -9,10 +9,11 @@ import (
 	"syscall"
 	"github.com/redis/go-redis/v9"
 	"github.com/joho/godotenv"
+	"github.com/jackc/pgx/v5"
 )
 
 func main() {
-	_ = godotenv.Load() // loads .env into process environment_ = godotenv.Load() // loads .env into process environment
+	_ = godotenv.Load()
 
 	ctx, stop := signal.NotifyContext(
 		context.Background(),
@@ -30,23 +31,18 @@ func main() {
 
 	opts, err := redis.ParseURL(redisURL)
 
-	// opts, err := redis.ParseURL(os.Getenv("REDIS_URL"))
-
 	if err != nil {
 		panic(err)
 	}
 
 	rdb := redis.NewClient(opts)
-	err = rdb.Set(ctx, "foo", "bar", 0).Err()
-	if err != nil {
-		panic(err)
-	}
 
-	val, err := rdb.Get(ctx, "foo").Result()
+	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
 	}
-	fmt.Println("foo", val) 
+	defer conn.Close(context.Background())
 
 	<-ctx.Done()
 
