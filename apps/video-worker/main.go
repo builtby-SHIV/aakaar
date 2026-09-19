@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"context"
 	"log"
 	"os"
@@ -9,7 +8,7 @@ import (
 	"syscall"
 	"github.com/redis/go-redis/v9"
 	"github.com/joho/godotenv"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main() {
@@ -22,27 +21,38 @@ func main() {
 	)
 	defer stop()
 
-	log.Println("video worker started")
-
+	const (
+		GroupName = "video-processors"
+		StreamKey = "videos"
+	)
+	
+	//creating redis client
 	redisURL := os.Getenv("REDIS_URL")
 	if redisURL == "" {
 		log.Fatal("REDIS_URL environment variable is not set")
 	}
-
 	opts, err := redis.ParseURL(redisURL)
-
 	if err != nil {
-		panic(err)
+		log.Fatal("Unable to parse redis URl:", err)
 	}
-
 	rdb := redis.NewClient(opts)
+	defer rdb.Close()
 
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	//creating consumer group
+	_, err = rdb.XGroupCreate(ctx, StreamKey, GroupName, "0").Result()
+
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
+		log.Fatal("Unable to create consumer group:", err)
 	}
-	defer conn.Close(context.Background())
+
+	//creating pgsql client
+	pool, err := pgxpool.New(ctx, os.Getenv("DATABASE_URL"))
+    if err != nil {
+		log.Fatal("Unable to create connection pool:", err)
+    }
+    defer pool.Close()
+	
+	log.Println("video worker started")
 
 	<-ctx.Done()
 
