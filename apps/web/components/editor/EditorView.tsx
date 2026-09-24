@@ -1,14 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { ExportModal } from "../ExportModal";
 import { EditorHeader } from "./EditorHeader";
 import { EditorPreviewCanvas } from "./EditorPreviewCanvas";
 import { EditorSidebar } from "./EditorSidebar";
 import { EditorTimeline } from "./EditorTimeline";
 import { EditorToolDrawer } from "./EditorToolDrawer";
-import { AspectRatio, CaptionItem, LayoutMode } from "./types";
+import { AspectRatio, CaptionItem, EditorOperation, LayoutMode } from "./types";
 import { useEditorPlayback } from "./useEditorPlayback";
+import { useEditorOperations } from "./useEditorOperations";
 import { useEditorState } from "./useEditorState";
 
 interface EditorViewProps {
@@ -33,6 +34,18 @@ export function EditorView({
   });
   const playback = useEditorPlayback(duration);
 
+  // Zustand operations store
+  const {
+    operations,
+    selectedOperationId,
+    selectOperation,
+    updateOperation,
+    removeOperation,
+    addZoom,
+    addTrim,
+    addBlur,
+  } = useEditorOperations();
+
   const currentCaption = editorState.captions.find(
     (c) =>
       playback.currentTime >= c.start && playback.currentTime <= c.end,
@@ -44,8 +57,49 @@ export function EditorView({
     playback.setCurrentTime(6);
   };
 
+  // Keyboard shortcuts for operations
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLSelectElement
+      ) {
+        return;
+      }
+
+      // Delete / Backspace → delete selected operation
+      if ((e.key === "Delete" || e.key === "Backspace") && selectedOperationId) {
+        e.preventDefault();
+        removeOperation(selectedOperationId);
+      }
+
+      // Arrow keys → move playhead
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        playback.setCurrentTime(Math.max(0, playback.currentTime - 1));
+      }
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        playback.setCurrentTime(Math.min(playback.totalDuration, playback.currentTime + 1));
+      }
+
+      // Escape → deselect
+      if (e.key === "Escape") {
+        selectOperation(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedOperationId, removeOperation, selectOperation, playback]);
+
+  const handleUpdateOperation = (id: string, updates: Partial<EditorOperation>) => {
+    updateOperation(id, updates);
+  };
+
   return (
-    <div className="h-screen w-screen bg-[#131415] text-[#F2F1ED] flex flex-col justify-between overflow-hidden select-none">
+    <div className="h-screen w-screen bg-[#111] text-[#F2F1ED] flex flex-col justify-between overflow-hidden select-none">
       {/* 1. TOP EDITORIAL BAR */}
       <EditorHeader
         projectId={projectId}
@@ -73,6 +127,10 @@ export function EditorView({
           currentCaption={currentCaption}
           captionPosition={editorState.captionPosition}
           onTogglePlay={playback.togglePlay}
+          operations={operations}
+          selectedOperationId={selectedOperationId}
+          onUpdateOperation={handleUpdateOperation}
+          onSelectOperation={selectOperation}
         />
 
         {/* C. RIGHT CONTEXTUAL PROPERTIES PANEL */}
@@ -113,6 +171,8 @@ export function EditorView({
         totalDuration={playback.totalDuration}
         zoomLevel={playback.zoomLevel}
         captions={editorState.captions}
+        operations={operations}
+        selectedOperationId={selectedOperationId}
         onTogglePlay={playback.togglePlay}
         onResetTime={() => playback.setCurrentTime(0)}
         onZoomIn={() =>
@@ -125,6 +185,12 @@ export function EditorView({
         onPointerMove={playback.handlePointerMove}
         onPointerUp={playback.handlePointerUp}
         formatTime={playback.formatTime}
+        onSelectOperation={selectOperation}
+        onUpdateOperation={handleUpdateOperation}
+        onDeleteOperation={removeOperation}
+        onAddZoom={() => addZoom(playback.currentTime, playback.totalDuration)}
+        onAddTrim={() => addTrim(playback.currentTime, playback.totalDuration)}
+        onAddBlur={() => addBlur(playback.currentTime, playback.totalDuration)}
       />
 
       {/* Export Simulation Modal */}
