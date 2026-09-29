@@ -181,7 +181,7 @@ export function RecordButton({ onStart, onStop, projectId }: RecordButtonProps) 
                     });
                     publishJob.mutate({
                         projectId: projectId, 
-                        videoId: videoId.current!
+                        videoId: videoId.current!,
                     });
                     setIsRecording(false);
                     console.log(isRecording);
