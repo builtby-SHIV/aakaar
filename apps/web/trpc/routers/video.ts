@@ -156,6 +156,6 @@ export const videoRouter = createTRPCRouter({
             .mutation(async ({ input, ctx }) => {
                 await assertProjectAccess(input.projectId, ctx.session.user.id as string);
                 const redis = await getRedisConnection();
-                await redis.xAdd('videos', '*', { videoId: input.videoId.toString() });
+                await redis.xAdd('videos', '*', { videoId: input.videoId.toString(), userId: ctx.session.user.id, projectId: input.projectId.toString() });
             })
     })

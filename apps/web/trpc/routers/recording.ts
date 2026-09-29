@@ -50,8 +50,8 @@ export const recordingRouter = createTRPCRouter({
 
             if (project.length <= 0)
                 throw new ForbiddenError(`Project "${input.projectId}"`);
-
-            const r2Key = `users/${sessionUserId}/projects/${project[0]?.id}/videos/${input.videoId}/chunks/${input.chunkIndex}.webm`;
+            const paddedIndex = String(input.chunkIndex).padStart(8, "0");
+            const r2Key = `users/${sessionUserId}/projects/${project[0]?.id}/videos/${input.videoId}/chunks/${paddedIndex}.webm`;
 
             try {
                 const putUrl = await getSignedUrl(

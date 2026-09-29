@@ -15,3 +15,16 @@ export interface CaptionItem {
 export type CaptionFont = "Editorial Serif" | "Modern Sans" | "Monospace";
 
 export type CaptionPosition = "bottom" | "middle" | "top";
+
+export interface ZoomOperation {
+  id: string; type: "zoom"; start: number; end: number;
+  scale: number; x: number; y: number; width: number; height: number;
+}
+export interface BlurOperation {
+  id: string; type: "blur"; start: number; end: number;
+  x: number; y: number; width: number; height: number; blurAmount: number;
+}
+export interface TrimOperation {
+  id: string; type: "trim"; start: number; end: number;
+}
+export type EditorOperation = ZoomOperation | TrimOperation | BlurOperation;

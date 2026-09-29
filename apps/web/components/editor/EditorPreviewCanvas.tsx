@@ -1,9 +1,11 @@
 "use client";
 
 import { Pause, Play } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import { WaveformPreview } from "../WaveformPreview";
-import { AspectRatio, CaptionItem, CaptionPosition, LayoutMode } from "./types";
+import { AspectRatio, CaptionItem, CaptionPosition, LayoutMode, EditorOperation } from "./types";
+import { EditorToolRail } from "./EditorToolRail";
+import { VideoOverlays } from "./VideoOverlays";
 
 interface EditorPreviewCanvasProps {
   aspectRatio: AspectRatio;
@@ -15,6 +17,10 @@ interface EditorPreviewCanvasProps {
   currentCaption?: CaptionItem;
   captionPosition: CaptionPosition;
   onTogglePlay: () => void;
+  operations: EditorOperation[];
+  selectedOperationId: string | null;
+  onUpdateOperation: (id: string, updates: Partial<EditorOperation>) => void;
+  onSelectOperation: (id: string | null) => void;
 }
 
 export const EditorPreviewCanvas: React.FC<EditorPreviewCanvasProps> = ({
@@ -27,7 +33,13 @@ export const EditorPreviewCanvas: React.FC<EditorPreviewCanvasProps> = ({
   currentCaption,
   captionPosition,
   onTogglePlay,
+  operations,
+  selectedOperationId,
+  onUpdateOperation,
+  onSelectOperation,
 }) => {
+  const [railActiveTool, setRailActiveTool] = useState<string | null>(null);
+
   return (
     <main className="flex-1 bg-[#131415] flex items-center justify-center p-6 relative overflow-hidden">
       <div
@@ -64,6 +76,19 @@ export const EditorPreviewCanvas: React.FC<EditorPreviewCanvasProps> = ({
             )}
           </div>
         </button>
+
+        <VideoOverlays
+          currentTime={currentTime}
+          operations={operations}
+          selectedOperationId={selectedOperationId}
+          onUpdateOperation={onUpdateOperation}
+          onSelectOperation={onSelectOperation}
+        />
+
+        <EditorToolRail
+          activeTool={railActiveTool}
+          onSelectTool={setRailActiveTool}
+        />
 
         {/* Video Streams based on layoutMode */}
         <div className="w-full h-full p-3 flex gap-3 items-center justify-center relative">
